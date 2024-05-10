@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Categories</title>
+</head>
+<body>
+<h2>Categories for {{ channel.channel_name }}</h2>
+{% for category, subchannels in category_subchannels.items %}
+    <p>{{ category.category }} |
+        <a href="{% url 'createSubChannel' channel.id category.id %}">Create Subchannel</a> |
+        <a href="{% url 'deleteCategory' category.id %}">Delete</a>
+    </p>
+    <h3>Subchannels:</h3>
+    {% for subchannel in subchannels %}
+        <p><a href="{% url 'subChannelPage' channel.id category.id subchannel.id %}">{{ subchannel.subchannel_name }}</a></p>
+        {% empty %}
+        <p>No subchannels found</p>
+    {% endfor %}
+{% endfor %}
+</body>
+</html>

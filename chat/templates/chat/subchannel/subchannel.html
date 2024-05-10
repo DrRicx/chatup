@@ -1,0 +1,99 @@
+<!-- chat/templates/chat/subchannel/subchannel.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Subchannels</title>
+</head>
+<body>
+{% if subchannel %}
+    <h1>{{ subchannel.subchannel_name }}</h1>
+    <center><h1>Hello, Welcome to my chat site! {{ request.user }}</h1></center>
+    <br/>
+    <input type="text" id="id_message_send_input"/>
+    <button type="submit" id="id_message_send_button">Send Message</button>
+    <br/>
+    <br/>
+    <!-- Add this div to display the chat messages -->
+    {% if subchannel %}
+        <!-- Add this div to display the chat messages -->
+        <div id="chat-messages">
+            {% for message in messages %}
+                <div>
+                    <strong>{{ message.sender.username }}: </strong>{{ message.content }}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No subchannel selected</p>
+    {% endif %}
+    <br/>
+    {{ subchannel.unique_key|json_script:"unique_key" }}
+    <script>
+        // Get the channel and subchannel names from the Django context
+        var unique_Key = JSON.parse(document.getElementById("unique_key").textContent);
+
+        console.log(unique_Key)
+
+        // Create a WebSocket connection
+        var chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/channels/'
+            + unique_Key
+            + '/'
+        );
+
+        // When the WebSocket is connected, enable the send button
+        chatSocket.onopen = function (e) {
+            console.log("The connection was set up successfully!");
+        };
+        chatSocket.onclose = function (e) {
+            console.log("Something unexpected happened!");
+        };
+        document.querySelector("#id_message_send_input").focus();
+        document.querySelector("#id_message_send_input").onkeyup = function (e) {
+            if (e.keyCode == 13) {
+                document.querySelector("#id_message_send_button").click();
+            }
+        };
+        document.querySelector("#id_message_send_button").onclick = function (e) {
+            var messageInput = document.querySelector("#id_message_send_input").value;
+            var username = '{{ request.user.username }}';
+            chatSocket.send(
+                JSON.stringify({message: messageInput, username: username})
+            );
+            console.log("{{ request.user.username }}")
+        };
+
+        console.log("here")
+
+        window.onload = function () {
+            fetch(`/get_messages/${unique_Key}/`)
+                .then(response => response.json())
+                .then(messages => {
+                    const chatMessagesDiv = document.querySelector("#chat-messages");
+                    messages.forEach(message => {
+                        var div = document.createElement("div");
+                        div.innerHTML = "<strong>" + message.sender__username + ": </strong>" + message.content;
+                        chatMessagesDiv.appendChild(div);
+                    });
+                });
+        };
+
+        console.log("here")
+
+        chatSocket.onmessage = function (e) {
+            console.log("here")
+            const data = JSON.parse(e.data);
+            var div = document.createElement("div");
+            div.innerHTML = "<strong>" + data.username + ": </strong>" + data.message; // Prefix message with username
+            document.querySelector("#id_message_send_input").value = "";
+            document.querySelector("#chat-messages").appendChild(div);
+        };
+    </script>
+{% else %}
+    <p>No subchannel selected</p>
+{% endif %}
+</body>
+</html>

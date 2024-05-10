@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Direct Message</title>
+</head>
+<body>
+    <h1>Direct Message with {{ recipient_username }}</h1>
+    <input type="text" id="id_message_send_input" placeholder="Type your message here...">
+    <button type="button" id="id_message_send_button">Send</button>
+    <div id="chat-messages">
+        {% for message in messages %}
+            <p>
+                <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+                <small>{{ message.timestamp }}</small>
+            </p>
+        {% endfor %}
+    </div>
+    {{ recipient_username|json_script:"recipient_username" }}
+    <script>
+        // Get the recipient username from the Django context
+        const recipientUsername = JSON.parse(document.getElementById("recipient_username").textContent);
+
+        // Create a WebSocket connection
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/direct_message/'
+            + recipientUsername
+            + '/'
+        );
+
+        // When the WebSocket is connected, enable the send button
+        chatSocket.onopen = function (e) {
+            console.log("The connection was set up successfully!");
+        };
+        chatSocket.onclose = function (e) {
+            console.log("Something unexpected happened!");
+        };
+        document.querySelector("#id_message_send_input").focus();
+        document.querySelector("#id_message_send_input").onkeyup = function (e) {
+            if (e.keyCode == 13) {  // Enter key
+                document.querySelector("#id_message_send_button").click();
+            }
+        };
+        document.querySelector("#id_message_send_button").onclick = function (e) {
+            var messageInput = document.querySelector("#id_message_send_input").value;
+            var username = '{{ request.user.username }}';
+            chatSocket.send(
+                JSON.stringify({message: messageInput, username: username})
+            );
+            document.querySelector("#id_message_send_input").value = '';
+        };
+
+        window.onload = function () {
+            fetch(`/get_messages/${recipientUsername}/`)
+                .then(response => response.json())
+                .then(messages => {
+                    const chatMessagesDiv = document.querySelector("#chat-messages");
+                    messages.forEach(message => {
+                        var div = document.createElement("div");
+                        div.innerHTML = "<strong>" + message.sender__username + ": </strong>" + message.content;
+                        chatMessagesDiv.appendChild(div);
+                    });
+                });
+        };
+
+        chatSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            var div = document.createElement("div");
+            div.innerHTML = "<strong>" + data.username + ": </strong>" + data.message; // Prefix message with username
+            document.querySelector("#chat-messages").appendChild(div);
+        };
+    </script>
+</body>
+</html>
