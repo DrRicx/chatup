@@ -5,6 +5,8 @@ from django.dispatch import receiver
 import random
 import string
 
+from django.urls import reverse
+
 
 # Create your models here.
 def get_profile_image_filepath(self, filename):
@@ -68,6 +70,7 @@ class Channels(models.Model):
     def remove_admin(self, user):
         self.admins.remove(user)
 
+
 class PinnedChannel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     channel = models.ForeignKey(Channels, on_delete=models.CASCADE)
@@ -97,6 +100,7 @@ class PinnedChannel(models.Model):
     @classmethod
     def is_channel_pinned(cls, user, channel):
         return cls.objects.filter(user=user, channel=channel).exists()
+
 
 class Categories(models.Model):
     channel_root = models.ForeignKey(Channels, on_delete=models.SET_NULL, null=True)
@@ -136,7 +140,6 @@ class SubChannel(models.Model):
         super().save(*args, **kwargs)
 
 
-
 class Message(models.Model):
     content = models.TextField()
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -153,6 +156,48 @@ class Message(models.Model):
 
     def get_absolute_url(self):
         return reverse('message_detail_view', args=[str(self.id)])
+
+
+class FavouriteMessage(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.ForeignKey(Message, on_delete=models.CASCADE)
+    subchannel = models.ForeignKey(SubChannel, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'message', 'subchannel')
+
+    def __str__(self):
+        return f"{self.user.username} favourited {self.message.content[:50]} in {self.subchannel.subchannel_name}"
+
+    @classmethod
+    def favourite_message(cls, user, message, subchannel):
+        """
+        Method to add favourite message. If the messages is already in the list in relation to the user and subchannel, it simply return False. Otherwise, add the message in the list
+        :param user:
+        :param message:
+        :param subchannel:
+        :return:
+        """
+        if not cls.objects.filter(user=user, message=message, subchannel=subchannel).exists():
+            cls.objects.create(user=user, message=message, subchannel=subchannel)
+            return True
+        return False
+
+    @classmethod
+    def unfavourite_message(cls, user, message, subchannel):
+        """
+        Method to remove a favourite message. If the message is not in the list, it simply return False. Otherwise, remove the message from the list
+        :param user:
+        :param message:
+        :param subchannel:
+        :return:
+        """
+        try:
+            favourite = cls.objects.get(user=user, message=message, subchannel=subchannel)
+            favourite.delete()
+            return True
+        except cls.DoesNotExist:
+            return False
 
 
 class FriendList(models.Model):
