@@ -70,7 +70,6 @@ class Channels(models.Model):
     def remove_admin(self, user):
         self.admins.remove(user)
 
-
 class PinnedChannel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     channel = models.ForeignKey(Channels, on_delete=models.CASCADE)
