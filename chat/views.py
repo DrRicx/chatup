@@ -33,17 +33,25 @@ def loginPage(request):
     :return:
     """
 
-    pin = PinnedChannel.objects.all()
-
     if request.method == "POST":
-        user = authenticate(username=request.POST.get('username'), password=request.POST.get('password'))
-        if user is None:
-            messages.error(request, "Invalid Password")
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user_exists = User.objects.filter(username=username).exists()
+
+        if user_exists:
+            user = authenticate(username=username, password=password)
+            if user is None:
+                messages.error(request, "Invalid Password")
+                return redirect('login')  # Redirect to 'login' page if password is incorrect
+            else:
+                login(request, user)
+                messages.success(request, "User authenticated and logged in")
+                return redirect('home')  # Redirect to 'home' page if authentication is successful
         else:
-            login(request, user)
-            messages.success(request, "User authenticated and logged in")
-        return redirect('channels')
-    return render(request, 'chat/register_login.html', {'page': 'login', 'pin': pin})
+            messages.error(request, "Invalid Username")
+            return redirect('login')  # Redirect to 'login' page if username is incorrect
+
+    return render(request, 'chat/register_login.html', {'page': 'login'})
 
 
 def registerPage(request):
@@ -289,7 +297,11 @@ def subchannelRoom(request, unique_key):
     if subchannel is None:
         return HttpResponse("Subchannel not found")
     messages = Message.objects.filter(subchannel=subchannel).order_by('timestamp')
-    context = {'subchannel': subchannel, 'messages': messages}
+
+    # Get favourite messages for the current user and subchannel
+    favourite_messages = FavouriteMessage.objects.filter(user=request.user, subchannel=subchannel)
+
+    context = {'subchannel': subchannel, 'messages': messages, 'favourite_messages': favourite_messages}
     return render(request, 'chat/subchannel/subchannel.html', context)
 
 
@@ -332,6 +344,7 @@ def unpin_channel(request, channel_id):
         messages.error(request, f'{channel.channel_name} is not pinned')
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
+
 def favouriteMessageSubchannel(request, message_id):
     message = get_object_or_404(Message, id=message_id)
     subchannel = message.subchannel
@@ -341,6 +354,7 @@ def favouriteMessageSubchannel(request, message_id):
     else:
         messages.error(request, f'Message is already favourited.')
     return redirect(request.META.get('HTTP_REFERER', 'home'))
+
 
 def unFavouriteMessageSubchannel(request, message_id):
     message = get_object_or_404(Message, id=message_id)

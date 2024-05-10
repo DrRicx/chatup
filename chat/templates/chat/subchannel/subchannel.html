@@ -9,6 +9,16 @@
 {% if subchannel %}
     <h1>{{ subchannel.subchannel_name }}</h1>
     <center><h1>Hello, Welcome to my chat site! {{ request.user }}</h1></center>
+    {% if favourite_messages %}
+        <h2>Favourite Messages</h2>
+        <div id="favourite-messages">
+            {% for message in favourite_messages %}
+                <div>
+                    <strong>{{ message.message.sender.username }}: </strong>{{ message.message.content }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
     <br/>
     <input type="text" id="id_message_send_input"/>
     <button type="submit" id="id_message_send_button">Send Message</button>
@@ -20,7 +30,8 @@
         <div id="chat-messages">
             {% for message in messages %}
                 <div>
-                    <strong>{{ message.sender.username }}: </strong>{{ message.content }}
+                    <strong>{{ message.sender.username }}: </strong>{{ message.content }} <a
+                        href="{% url 'favourite_message_in_subchannel' message.id %}">favourite</a>
                 </div>
             {% endfor %}
         </div>

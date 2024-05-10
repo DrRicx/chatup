@@ -37,8 +37,10 @@ urlpatterns = [
     path('pin_channel/<int:channel_id>/', views.pin_channel, name='pin_channel'),
     path('unpin_channel/<int:channel_id>/', views.unpin_channel, name='unpin_channel'),
 
-    path('favourite_message_in_subchannel/<int:message_id>/<int:subchannel_id>/', views.favouriteMessageSubchannel, name='favourite_message_in_subchannel'),
-    path('unfavourite_message_in_subchannel/<int:message_id>/<int:subchannel_id>/', views.unFavouriteMessageSubchannel, name='unfavourite_message_in_subchannel'),
+    path('favourite_message_in_subchannel/<int:message_id>/', views.favouriteMessageSubchannel,
+         name='favourite_message_in_subchannel'),
+    path('unfavourite_message_in_subchannel/<int:message_id>/', views.unFavouriteMessageSubchannel,
+         name='unfavourite_message_in_subchannel'),
 
     path('get_messages/<str:subchannel_name>/', views.get_messages, name='get_messages'),
     path('direct_message/<int:user_id>/', views.direct_message_view, name='direct_message'),

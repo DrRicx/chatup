@@ -3,14 +3,17 @@
 {% bootstrap_javascript %}
 {% load static %}
 {% block content %}
+    {% if messages %}
+        <div class="alert alert-danger" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
     {% if page == 'login' %}
-        {% for pin in pin %}
-        	{{ pin.channel }}
-        {% endfor %}
-
         <form action="" method="POST">
             {% csrf_token %}
-            <label>username:</label>
+            <label>Username:</label>
             <input type="text" name="username" placeholder="Enter username"/>
 
             <label>Password:</label>
