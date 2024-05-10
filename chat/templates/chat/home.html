@@ -1,0 +1,112 @@
+<!-- home.html -->
+{% extends 'main_home.html' %}
+{% load static %}
+{% block content %}
+    <div class="chat">
+        <div class="chat__column">
+            {{ request.user }}
+            <div class="chat__column--channels">
+                {% for channel in channels %}
+                    <div class="chat__column--channels__item">
+                        <a class="channel-link" href="#"
+                           data-channel-id="{{ channel.id }}">{{ channel.channel_name }}</a>
+                        <a class="pin-channel-link" href="{% url 'pin_channel' channel.id %}">Pin</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="chat__column">
+            <div id="chat__column--subchannels" class="chat__column--subchannels">
+            </div>
+        </div>
+        <div class="chat__column">
+            <div id="chat__column--room" class="chat__column--room">
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <script>
+        $(document).ready(function () {
+            var lastClickedChannel = localStorage.getItem('lastClickedChannel');
+            var lastClickedSubchannel = localStorage.getItem('lastClickedSubchannel');
+
+            $('.channel-link').click(function (e) {
+                e.preventDefault();
+
+                var channelId = $(this).data('channel-id');
+                var url = '/channels/' + channelId;
+
+                localStorage.setItem('lastClickedChannel', channelId);
+
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    success: function (data) {
+                        var subchannelsHtml = '';
+                        if (data.subchannels) {
+                            for (var i = 0; i < data.subchannels.length; i++) {
+                                var subchannelUrl = '/channels/' + data.subchannels[i].unique_key;
+                                subchannelsHtml += '<div><a class="subchannel-link" href="' + subchannelUrl + '" data-subchannel-key="' + data.subchannels[i].unique_key + '">' + data.subchannels[i].name + '</a></div>';
+                            }
+                        }
+                        $('#chat__column--subchannels').html(subchannelsHtml);
+
+                        // Add click event listener to subchannel links
+                        $('.subchannel-link').click(function (e) {
+                            e.preventDefault();
+
+                            var uniqueKey = $(this).data('subchannel-key');  // Retrieve uniqueKey from the clicked link
+                            var url = '/channels/' + uniqueKey;
+
+                            localStorage.setItem('lastClickedSubchannel', uniqueKey);
+
+                            // Change the URL without reloading the page
+                            history.pushState(null, '', url);
+
+                            $.ajax({
+                                type: 'GET',
+                                url: url,
+                                success: function (data) {
+                                    $('#chat__column--room').html(data);
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error('Error:', error);
+                                }
+                            });
+                        });
+
+                        // Automatically click the first subchannel link
+                        $('.subchannel-link:first').click();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+
+            if (lastClickedChannel) {
+                $('.channel-link[data-channel-id="' + lastClickedChannel + '"]').click();
+            } else {
+                // If not, click the first channel link
+                $('.channel-link:first').click();
+            }
+
+            // If last clicked subchannel exists in local storage, trigger click event
+            if (lastClickedSubchannel) {
+                $('.subchannel-link[data-subchannel-key="' + lastClickedSubchannel + '"]').click();
+            } else {
+                // If not, click the first subchannel link
+                $('.subchannel-link:first').click();
+            }
+        });
+    </script>
+
+{% endblock %}

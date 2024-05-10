@@ -1,0 +1,22 @@
+.chat {
+    display: grid;
+    grid-template-columns: 0.5fr 1fr 3fr;
+    gap: 10px;
+}
+
+.chat__column {
+    /* Styles for each column */
+}
+
+.chat__column--channels__item{
+    /* Styles for channels */
+    cursor: pointer;
+}
+
+.chat__column-subchannels {
+    /* Styles for subchannels */
+}
+
+.chat__column-subchannels__item {
+    /* Styles for each subchannel item */
+}

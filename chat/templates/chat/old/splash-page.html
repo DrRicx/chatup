@@ -1,0 +1,12 @@
+{% extends 'main.html' %}
+
+{% block content %}
+    <a href="{% url 'login' %}">Login</a>
+    <br>
+    <a href="{% url 'register' %}">Register</a>
+    <br>
+    Admins for {{ channel.channel_name }}:
+    {% for admin in admins %}
+        {{ admin.username }}<br>
+    {% endfor %}
+{% endblock %}

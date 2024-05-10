@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Site</title>
+</head>
+<body>
+<center><h1>Hello, Welcome to my chat site! {{ request.user }}</h1></center>
+<a href="{% url 'add' channel.id subchannel.id%}">Add</a>
+{{ subchannel.id }}
+{{ channel.id }}
+<br>
+{% if request.user.is_authenticated %}
+    <center> Logout the chat Page <a href="{% url 'home' %}">Logout</a></center>
+{% endif %}
+<div class="chat__item__container" id="id_chat_item_container" style="font-size: 20px">
+    <br/>
+    <input type="text" id="id_message_send_input"/>
+    <button type="submit" id="id_message_send_button">Send Message</button>
+    <br/>
+    <br/>
+</div>
+{{ channel.channel_name|json_script:"channel_name" }}
+{{ subchannel.subchannel_name|json_script:"subchannel_name" }}
+<script>
+    const roomName = JSON.parse(document.getElementById("channel_name").textContent);
+    const subName = JSON.parse(document.getElementById("subchannel_name").textContent);
+    console.log(roomName)
+    console.log(subName)
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/chat/'
+        + roomName
+        + '/'
+        + subName
+        + '/'
+    );
+
+    chatSocket.onopen = function (e) {
+        console.log("The connection was set up successfully!");
+    };
+    chatSocket.onclose = function (e) {
+        console.log("Something unexpected happened!");
+    };
+    document.querySelector("#id_message_send_input").focus();
+    document.querySelector("#id_message_send_input").onkeyup = function (e) {
+        if (e.keyCode == 13) {
+            document.querySelector("#id_message_send_button").click();
+        }
+    };
+    document.querySelector("#id_message_send_button").onclick = function (e) {
+        var messageInput = document.querySelector("#id_message_send_input").value;
+        console.log("{{ request.user.username }}")
+        var username = '{{ request.user.username }}';
+        chatSocket.send(
+            JSON.stringify({message: messageInput, username: username})
+        );
+    };
+    chatSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        var div = document.createElement("div");
+        div.innerHTML = "<strong>" + data.username + ": </strong>" + data.message; // Prefix message with username
+        document.querySelector("#id_message_send_input").value = "";
+        document.querySelector("#id_chat_item_container").appendChild(div);
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Channels</title>
+</head>
+<body>
+<h2>Channels</h2>
+<a href="{% url 'addChannel' %}">Add Channel</a>
+{{ request.user }}
+
+{% for channel, subchannels in channel_subchannels.items %}
+    <div class="channels"><p>{{ channel.channel_name }}</p>
+        <div class="dropdown">
+            <span>⋮</span>
+            <div class="dropdown-content">
+                <a href="{% url 'deleteChannel' channel.id %}">Delete</a>
+                <a href="{% url 'categoryPage' channel.id %}">View Categories</a>
+                <a href="{% url 'create_category' channel.id %}">Create Category</a>
+                <a href="{% url 'createSubChannelChannel' channel.id %}">Create Subchannel</a>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+</body>
+</html>

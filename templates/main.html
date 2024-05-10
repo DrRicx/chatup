@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ChatUP</title>
+    <link rel="stylesheet" href="{% static 'chat/css/splash-design.css' %}">
+</head>
+<body>
+<nav class="nav">
+    <div class="nav__logo">
+        <span class="nav__brand"><a href="{% url 'splashPage' %}">chatUP</a></span>
+    </div>
+    <div class="nav__links">
+        <ul class="nav__list">
+            <li class="nav__item"><a href="{% url 'splashPage' %}">Blog</a></li>
+            <li class="nav__item"><a href="{% url 'splashPage' %}">About</a></li>
+            <li class="nav__item"><a href="{% url 'splashPage' %}">Discover</a></li>
+            <li class="nav__item"><a href="{% url 'splashPage' %}">Support</a></li>
+            <li class="nav__item"><a href="{% url 'splashPage' %}">Community</a></li>
+        </ul>
+    </div>
+</nav>
+{% block content %}
+
+{% endblock %}
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Account Page</title>
+    <style>
+        .circle-img {
+            border-radius: 50%;
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="profile-info">
+        <h2>Profile Information</h2>
+        <img src="{{ profile_picture }}" alt="" class="circle-img">
+        <p id="username">Username: {{ username }}</p>
+        <p id="email">Student: {{ student_number }}</p>
+    </div>
+    <div class="channels-info">
+        <h2>Channels</h2>
+        {% for channel in host_channels %}
+            <p>You are hosting: {{ channel.channel_name }}</p>
+        {% endfor %}
+
+        {% for channel in member_channels %}
+            <p>You are a member of: {{ channel.channel_name }}</p>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>

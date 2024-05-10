@@ -1,0 +1,33 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block content %}
+    <div class="splash-page">
+        <div class="splash-page__container">
+            <div class="splash-page__hero-content">
+                <div class="splash-page__hero-banner">
+                    <span class="splash-page__hero-banner-text">CREATE A PLACE...</span>
+                </div>
+                <div class="splash-page__hero-banner-sub">
+                <span class="splash-page__hero--banner-sub-text">
+                    Where everyone belongs to a group of advanced learners, drivers of
+      future, and the creators of the new innovation of the world. Where you
+      and the top of learners and educators can spend time together. Learn
+      new things and change the world forever.
+                </span>
+                </div>
+            </div>
+            <div class="splash-page__log-register">
+                <div class="splash-page__login">
+                    <p>
+                        <a href="{% url 'login' %}" class="splash-page__login-button">Login</a>
+                    </p>
+                </div>
+                <div class="splash-page__register">
+                    <p>
+                        <a href="{% url 'register' %}" class="splash-page__register-button">Register</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
