@@ -322,11 +322,32 @@ def pin_channel(request, channel_id):
         messages.error(request, f'{channel.channel_name} is already pinned.')
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
+
 def unpin_channel(request, channel_id):
-    channel=Channels.objects.filter(id=channel_id)
-    unpinned=PinnedChannel.unpin_channel(request.user, channel)
+    channel = Channels.objects.filter(id=channel_id)
+    unpinned = PinnedChannel.unpin_channel(request.user, channel)
     if unpinned:
         messages.success(request, f'Successfully unpinned {channel.channel_name}')
     else:
         messages.error(request, f'{channel.channel_name} is not pinned')
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+def favouriteMessageSubchannel(request, message_id):
+    message = get_object_or_404(Message, id=message_id)
+    subchannel = message.subchannel
+    favourited = FavouriteMessage.favourite_message(request.user, message, subchannel)
+    if favourited:
+        messages.success(request, f'Successfully favourited message.')
+    else:
+        messages.error(request, f'Message is already favourited.')
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+def unFavouriteMessageSubchannel(request, message_id):
+    message = get_object_or_404(Message, id=message_id)
+    subchannel = message.subchannel
+    unfavourited = FavouriteMessage.unfavourite_message(request.user, message, subchannel)
+    if unfavourited:
+        messages.success(request, f'Successfully unfavourited message.')
+    else:
+        messages.error(request, f'Message is not favourited.')
     return redirect(request.META.get('HTTP_REFERER', 'home'))
