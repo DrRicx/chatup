@@ -10,6 +10,10 @@
             {% endfor %}
         </div>
     {% endif %}
+    {% for pin in pin %}
+    	{{ pin.channel }}
+    {% endfor %}
+
     {% if page == 'login' %}
         <form action="" method="POST">
             {% csrf_token %}

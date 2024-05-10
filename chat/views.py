@@ -33,6 +33,8 @@ def loginPage(request):
     :return:
     """
 
+    pin = PinnedChannel.objects.all()
+
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -51,7 +53,7 @@ def loginPage(request):
             messages.error(request, "Invalid Username")
             return redirect('login')  # Redirect to 'login' page if username is incorrect
 
-    return render(request, 'chat/register_login.html', {'page': 'login'})
+    return render(request, 'chat/register_login.html', {'page': 'login', 'pin': pin})
 
 
 def registerPage(request):
