@@ -19,6 +19,10 @@
         <img src="{{ profile_picture }}" alt="" class="circle-img">
         <p id="username">Username: {{ username }}</p>
         <p id="email">Student: {{ student_number }}</p>
+        {% if is_current_user %}
+            <a href="{% url 'editAccount' user.id%}">Edit</a>
+        {% endif %}
+
     </div>
     <div class="channels-info">
         <h2>Channels</h2>

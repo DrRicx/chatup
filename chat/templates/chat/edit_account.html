@@ -1,0 +1,11 @@
+{% extends "main_home.html" %}
+
+{% block content %}
+    <h2>Edit Account and Password</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ account_form.as_p }}
+        {{ password_form.as_p }}
+        <button type="submit">Save changes</button>
+    </form>
+{% endblock %}

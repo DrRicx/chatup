@@ -1,40 +1,165 @@
-{% load bootstrap5 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
+{% extends 'main_home.html' %}
 {% load static %}
 {% block content %}
-    {% if messages %}
-        <div class="alert alert-danger" role="alert">
-            {% for message in messages %}
-                {{ message }}
-            {% endfor %}
+    {% if page == 'login' %}
+        <div class="main-container">
+            <div class="rectangle">
+                <div class="removebg-preview"></div>
+                <div class="flex-column">
+                    <span class="welcome-back">Welcome Back,</span>
+                    {% if messages %}
+                        {% for message in messages %}
+                            <p class="alert alert-{{ message.tags }}">{{ message }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        <label for="username" class="username_label">USERNAME</label><br>
+                        <input type="text" name="username" id="username" class="username_input"/><br>
+
+                        <label for="password" class="password_label">PASSWORD</label><br>
+                        <input type="password" name="password" id="password" class="password_input"/><br>
+
+                        <div class="forgot_password_container">
+                            <a href="#" class="forgot-password">Forgot Password</a>
+                        </div>
+
+                        <input type="submit" value="Login" class="submit_button"/>
+                    </form>
+                </div>
+
+                <div class="no_account_register">
+                    <div class="dont-have-account"><p>Don’t have an Account?</p></div>
+                    <div class="register-3"><a href="{% url 'register' %}">REGISTER</a></div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="register_container">
+            <h2 class="register_container__form_title">REGISTER ACCOUNT</h2>
+            <div class="register_container__form_container">
+                <form action="" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="page slidepage" id="page_1">
+                        <div class="page_1_inner_container">
+                            <div class="profile_picture_container">
+                                <div id="profile_picture_button" class="image-upload-button">Upload Image</div>
+                                <input type="file" name="profile_picture" id="profile_picture"
+                                       onchange="loadImage(event)"/></div>
+
+                            <div class="fields_page_1">
+                                <label for="first_name">First Name:</label>
+                                <input type="text" name="first_name" id="first_name"/><br>
+
+                                <label for="middle_name">Middle Name:</label>
+                                <input type="text" name="middle_name" id="middle_name"/><br>
+
+                                <label for="last_name">Last Name:</label>
+                                <input type="text" name="last_name" id="last_name"/><br>
+                            </div>
+                        </div>
+                        <div class="page__field_btns nextBtn">
+                            <button class="next-2" id="next-2-btn">Continue</button>
+                        </div>
+                    </div>
+
+                    <div class="page slidepage" id="page_2">
+                        <label for="gender">Gender:</label>
+                        <select name="gender" id="gender">
+                            <option value="MALE">Male</option>
+                            <option value="FEMALE">Female</option>
+                        </select><br>
+
+                        <label for="email">Email:</label>
+                        <input type="email" name="email" id="email"/><br>
+
+                        <label for="student_number">Student Number:</label>
+                        <input type="text" name="student_number" id="student_number"/><br>
+
+                        <label for="birthdate">Birthdate:</label>
+                        <input type="date" name="birthdate" id="birthdate"/><br>
+
+                        <div class="page__field_btn page_2_btn_container">
+                            <button class="prev-1">Back</button>
+                            <button class="next-3">Continue</button>
+                        </div>
+                    </div>
+
+                    <div class="page slidepage" id="page_3">
+                        <label for="username">Username:</label>
+                        <input type="text" name="username" id="username"/><br>
+
+                        <label for="password1">Password:</label>
+                        <input type="password" name="password1" id="password1"/><br>
+
+                        <label for="password2">Confirm Password:</label>
+                        <input type="password" name="password2" id="password2"/><br>
+                        <div class="page__field_btn ">
+                            <button class="prev-2">Back</button>
+                            <button type="submit" class="submit-btn">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="yes_account_register">
+                <div class="yes-have-account"><p>Already have an account?</p></div>
+                <div class="register-3"><a href="{% url 'login' %}">LOGIN</a></div>
+            </div>
+            <div class="register_container__terms_container">
+                <p>By registering you agree in the ChatUP’s <span>Terms of Service</span> and
+                    <span>Privacy Policy</span></p>
+            </div>
         </div>
     {% endif %}
-    {% for pin in pin %}
-    	{{ pin.channel }}
-    {% endfor %}
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const page1 = document.getElementById("page_1");
+            const page2 = document.getElementById("page_2");
+            const page3 = document.getElementById("page_3");
 
-    {% if page == 'login' %}
-        <form action="" method="POST">
-            {% csrf_token %}
-            <label>Username:</label>
-            <input type="text" name="username" placeholder="Enter username"/>
+            const next2btn = document.getElementById("next-2-btn");
+            const prev1btn = document.querySelector(".prev-1");
+            const next3btn = document.querySelector(".next-3");
+            const prev2btn = document.querySelector(".prev-2");
 
-            <label>Password:</label>
-            <input type="password" name="password" placeholder="Enter password"/>
-            <br>
+            next2btn.addEventListener("click", function (event) {
+                event.preventDefault();
+                page1.style.display = "none";
+                page2.style.display = "block";
+            });
 
-            <a href="{% url 'password_reset' %}">Reset Password</a>
+            prev1btn.addEventListener("click", function (event) {
+                event.preventDefault();
+                page2.style.display = "none";
+                page1.style.display = "block";
+            });
 
-            <input type="submit" value="Login"/>
-        </form>
-    {% else %}
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {% bootstrap_form form %}
-            {% buttons %}
-                <button type="submit" class="btn btn-primary">Submit</button>
-            {% endbuttons %}
-        </form>
-    {% endif %}
+            next3btn.addEventListener("click", function (event) {
+                event.preventDefault();
+                page2.style.display = "none";
+                page3.style.display = "block";
+            });
+
+            prev2btn.addEventListener("click", function (event) {
+                event.preventDefault();
+                page3.style.display = "none";
+                page2.style.display = "block";
+            });
+        });
+
+        document.getElementById('profile_picture_button').addEventListener('click', function () {
+            document.getElementById('profile_picture').click();
+        });
+
+        function loadImage(event) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                var output = document.getElementById('profile_picture_button');
+                output.style.backgroundImage = 'url(' + reader.result + ')';
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+    </script>
 {% endblock %}

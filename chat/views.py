@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.core import serializers
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import JsonResponse
@@ -33,8 +33,6 @@ def loginPage(request):
     :return:
     """
 
-    pin = PinnedChannel.objects.all()
-
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -53,7 +51,7 @@ def loginPage(request):
             messages.error(request, "Invalid Username")
             return redirect('login')  # Redirect to 'login' page if username is incorrect
 
-    return render(request, 'chat/register_login.html', {'page': 'login', 'pin': pin})
+    return render(request, 'chat/register_login.html', {'page': 'login'})
 
 
 def registerPage(request):
@@ -73,7 +71,7 @@ def registerPage(request):
         form = UserAccountForm()
 
     context = {'form': form}
-    return render(request, 'chat/register_login.html', context)
+    return render(request, 'chat/templates/chat/register_login.html', context)
 
 
 def logoutPage(request):
@@ -114,12 +112,18 @@ def accountPage(request, *args, **kwargs):
     member_channels = Channels.objects.filter(members=account.user)
     context['member_channels'] = member_channels
 
+    if request.user == account.user:
+        context['is_current_user'] = True
+    else:
+        context['is_current_user'] = False
+
     return render(request, 'chat/account.html', context)
 
 
 def createChannelPage(request):
     if request.method == "POST":
-        form = ChannelForm(request.POST, user=request.user)
+        form = ChannelForm(request.POST, request.FILES,
+                           user=request.user)  # Include request.FILES to handle file upload
         if form.is_valid():
             form.save()
             return redirect('home')
@@ -131,7 +135,8 @@ def createChannelPage(request):
 
 def homePage(request):
     channels = Channels.objects.all()
-    context = {'channels': channels}
+    channel_subchannels = {channel: SubChannel.objects.filter(channel=channel) for channel in channels}
+    context = {'channel_subchannels': channel_subchannels, 'channels': channels}
     return render(request, 'chat/home.html', context)
 
 
@@ -266,7 +271,15 @@ def deleteSubChannel(request, subchannel_id):
 
 def get_messages(request, subchannel_name):
     messages = Message.objects.filter(subchannel__subchannel_name=subchannel_name).order_by('timestamp')
-    messages_list = list(messages.values('content', 'sender__username', 'timestamp'))
+    messages_list = [
+        {
+            'content': message.content,
+            'sender__username': message.sender.username,
+            'timestamp': message.timestamp,
+            'profile_picture_url': message.sender.account.profile_picture.url if message.sender.account.profile_picture else 'default_url_to_placeholder_image'
+        }
+        for message in messages
+    ]
     return JsonResponse(messages_list, safe=False)
 
 
@@ -300,18 +313,21 @@ def subchannelRoom(request, unique_key):
         return HttpResponse("Subchannel not found")
     messages = Message.objects.filter(subchannel=subchannel).order_by('timestamp')
 
-    # Get favourite messages for the current user and subchannel
     favourite_messages = FavouriteMessage.objects.filter(user=request.user, subchannel=subchannel)
 
-    context = {'subchannel': subchannel, 'messages': messages, 'favourite_messages': favourite_messages}
+    context = {
+        'subchannel': subchannel,
+        'messages': messages,
+        'favourite_messages': favourite_messages,
+        'profile_picture_url': request.user.account.profile_picture.url if request.user.account.profile_picture else 'default_url_to_placeholder_image'
+    }
     return render(request, 'chat/subchannel/subchannel.html', context)
 
 
 def subchannels_json(request, channel_id):
     if request.method == 'GET':
         subchannels = SubChannel.objects.filter(channel_id=channel_id)
-        subchannel_list = [{'id': sub.id, 'name': sub.subchannel_name, 'unique_key': sub.unique_key} for sub in
-                           subchannels]
+        subchannel_list = [{'id': sub.id, 'name': sub.subchannel_name, 'unique_key': sub.unique_key} for sub in subchannels]
         response_data = {
             'channel_id': channel_id,
             'subchannels': subchannel_list
@@ -367,3 +383,20 @@ def unFavouriteMessageSubchannel(request, message_id):
     else:
         messages.error(request, f'Message is not favourited.')
     return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+
+def editAccountAndPasswordPage(request, user_id):
+    account = get_object_or_404(Account, user__id=user_id)
+    if request.method == 'POST':
+        account_form = EditAccount(request.POST, request.FILES, instance=account)
+        password_form = EditPasswordForm(request.user, request.POST)
+        if account_form.is_valid() and password_form.is_valid():
+            account_form.save()
+            user = password_form.save()
+            update_session_auth_hash(request, user)  # Important!
+            messages.success(request, 'Account and password updated successfully')
+            return redirect('account', user_id=user_id)
+    else:
+        account_form = EditAccount(instance=account)
+        password_form = EditPasswordForm(request.user)
+    return render(request, 'chat/edit_account.html', {'account_form': account_form, 'password_form': password_form})

@@ -29,9 +29,13 @@
         <!-- Add this div to display the chat messages -->
         <div id="chat-messages">
             {% for message in messages %}
-                <div>
-                    <strong>{{ message.sender.username }}: </strong>{{ message.content }} <a
-                        href="{% url 'favourite_message_in_subchannel' message.id %}">favourite</a>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="{{ message.sender.account.profile_picture.url }}"
+                         alt="{{ message.sender.username }}'s profile picture" width="50" height="50"
+                         style="border-radius: 100%">
+                    <div style="background-color: blue">{{ message.content }}</div>
+                    <a
+                            href="{% url 'favourite_message_in_subchannel' message.id %}">favourite</a>
                 </div>
             {% endfor %}
         </div>
@@ -41,12 +45,8 @@
     <br/>
     {{ subchannel.unique_key|json_script:"unique_key" }}
     <script>
-        // Get the channel and subchannel names from the Django context
         var unique_Key = JSON.parse(document.getElementById("unique_key").textContent);
 
-        console.log(unique_Key)
-
-        // Create a WebSocket connection
         var chatSocket = new WebSocket(
             'ws://'
             + window.location.host
@@ -55,29 +55,36 @@
             + '/'
         );
 
-        // When the WebSocket is connected, enable the send button
         chatSocket.onopen = function (e) {
             console.log("The connection was set up successfully!");
         };
+
         chatSocket.onclose = function (e) {
             console.log("Something unexpected happened!");
         };
+
         document.querySelector("#id_message_send_input").focus();
         document.querySelector("#id_message_send_input").onkeyup = function (e) {
             if (e.keyCode == 13) {
                 document.querySelector("#id_message_send_button").click();
             }
         };
+
         document.querySelector("#id_message_send_button").onclick = function (e) {
             var messageInput = document.querySelector("#id_message_send_input").value;
             var username = '{{ request.user.username }}';
-            chatSocket.send(
-                JSON.stringify({message: messageInput, username: username})
-            );
-            console.log("{{ request.user.username }}")
-        };
+            var profilePictureUrl = '{{ request.user.account.profile_picture.url }}';
 
-        console.log("here")
+            console.log("Sending profile picture URL: " + profilePictureUrl);
+
+            chatSocket.send(
+                JSON.stringify({
+                    message: messageInput,
+                    username: username,
+                    profile_picture_url: profilePictureUrl
+                })
+            );
+        };
 
         window.onload = function () {
             fetch(`/get_messages/${unique_Key}/`)
@@ -86,19 +93,35 @@
                     const chatMessagesDiv = document.querySelector("#chat-messages");
                     messages.forEach(message => {
                         var div = document.createElement("div");
-                        div.innerHTML = "<strong>" + message.sender__username + ": </strong>" + message.content;
+
+                        var img = document.createElement("img");
+                        img.src = message.profile_picture_url;
+                        img.alt = message.sender__username + "'s profile picture";
+                        img.width = 50;
+                        img.height = 50;
+                        img.style.borderRadius = "100%";
+
+                        div.appendChild(img);
+                        div.innerHTML += "<strong>" + message.sender__username + ": </strong>" + message.content;
                         chatMessagesDiv.appendChild(div);
                     });
                 });
         };
 
-        console.log("here")
-
         chatSocket.onmessage = function (e) {
-            console.log("here")
             const data = JSON.parse(e.data);
+
+            console.log("Received profile picture URL: " + data.profile_picture_url);
+
             var div = document.createElement("div");
-            div.innerHTML = "<strong>" + data.username + ": </strong>" + data.message; // Prefix message with username
+            var img = document.createElement("img");
+            img.src = data.profile_picture_url;
+            img.alt = data.username + "'s profile picture";
+            img.width = "50";
+            img.height = "50";
+            img.style.borderRadius = "100%";
+            div.appendChild(img);
+            div.innerHTML += "<strong>" + data.username + ": </strong>" + data.message;
             document.querySelector("#id_message_send_input").value = "";
             document.querySelector("#chat-messages").appendChild(div);
         };

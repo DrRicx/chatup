@@ -4,7 +4,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 import random
 import string
-
 from django.urls import reverse
 
 
@@ -27,6 +26,16 @@ def get_default_profile_image():
     return "profilePictureDefault/default_profile.png"
 
 
+def get_default_profile_path(instance, filename):
+    """
+    Returns the path where the channel picture will be stored.
+    :param instance: The Channels model instance.
+    :param filename: The original name of the uploaded file.
+    :return: Path to store the file.
+    """
+    return "channelPictureDefault/channel_default.png"
+
+
 class Account(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_picture = models.ImageField(null=True, blank=True, upload_to=get_profile_image_filepath,
@@ -37,6 +46,7 @@ class Account(models.Model):
     )
     student_number = models.CharField(max_length=12, null=True, blank=True)
     middle_name = models.CharField(max_length=12, null=True, blank=True)
+    birthdate = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return self.user.username
@@ -52,6 +62,7 @@ class Account(models.Model):
 class Channels(models.Model):
     host = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     channel_name = models.CharField(max_length=200)
+    channel_picture = models.ImageField(upload_to=get_default_profile_path, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -64,11 +75,17 @@ class Channels(models.Model):
     def __str__(self):
         return self.channel_name
 
+    def save(self, *args, **kwargs):
+        if not self.channel_picture:
+            self.channel_picture = get_default_profile_path(self, 'default_profile.png')
+        super().save(*args, **kwargs)
+
     def add_admin(self, user):
         self.admins.add(user)
 
     def remove_admin(self, user):
         self.admins.remove(user)
+
 
 class PinnedChannel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

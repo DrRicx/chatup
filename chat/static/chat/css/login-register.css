@@ -1,0 +1,345 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", serif;
+    overflow: hidden;
+}
+
+/*body::before {*/
+/*    content: "";*/
+/*    position: absolute;*/
+/*    top: -75px;*/
+/*    right: -70px;*/
+/*    width: 600px;*/
+/*    height: 400px;*/
+/*    rotate: -520deg;*/
+/*    background: url('res/login_register/wave_border.svg');*/
+/*    background-size: cover;*/
+/*    z-index: 1;*/
+/*}*/
+
+/*body::after {*/
+/*    content: "";*/
+/*    position: absolute;*/
+/*    bottom: -80px;*/
+/*    left: -80px;*/
+/*    width: 600px;*/
+/*    height: 400px;*/
+/*    rotate: 20deg;*/
+/*    background: url('res/login_register/wave_border.svg');*/
+/*    background-size: cover;*/
+/*    z-index: 1;*/
+/*}*/
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(90deg, #0501c5 0%, #1e2a42 100%);
+}
+
+.alert-error {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.rectangle {
+    background: #1e2a42;
+    width: 40vw;
+    padding: 25px;
+    border-radius: 3px;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.welcome-back {
+    color: #ffffff;
+    font-size: 35px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+form {
+    margin-top: 15px;
+}
+
+form label {
+    color: #ffffff;
+    font-size: 20px;
+    white-space: nowrap;
+}
+
+.username_input, .password_input {
+    width: 100%;
+    height: 25px;
+    font-size: 20px;
+    padding: 15px;
+    margin: 5px 0 5px 0;
+}
+
+.forgot_password_container {
+    text-align: right;
+}
+
+.forgot-password {
+    color: #3579ff;
+    font-size: 15px;
+    font-weight: bold;
+    margin-top: 7px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.submit_button {
+    width: 100%;
+    height: 65px;
+    border-radius: 10px;
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 6px;
+    color: #ffffff;
+    background: #0501c5;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.no_account_register {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+    gap: 7px;
+}
+
+.dont-have-account {
+    color: #ffffff;
+    font-size: 1.2rem;
+}
+
+.register-3 {
+    font-size: 1.2rem;
+    font-weight: bolder;
+}
+
+.register-3 a {
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.register_container {
+    background: #1e2a42;
+    width: 45vw;
+    padding: 25px;
+    border-radius: 3px;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.register_container__form_title {
+    color: #ffffff;
+    text-align: center;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.register_container__form_fields {
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+    gap: 30px;
+}
+
+.register_container__form_fields label {
+    font-size: 15px;
+}
+
+
+.register_container__misc_container input {
+    margin: 5px 0 5px 0;
+    width: 90%;
+    padding: 10px;
+}
+
+.register_container__form__continue_htn {
+    text-align: center;
+    width: 100%;
+    margin-top: 10px;
+    height: auto;
+    color: #ffffff;
+    padding: 10px;
+    background: #0501c5;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.yes_account_register {
+    display: flex;
+    justify-content: flex-end;
+    gap: 7px;
+}
+
+.yes-have-account {
+    color: #ffffff;
+    font-size: 1.1rem;
+}
+
+.register_container__terms_container {
+    color: #ffffff;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.8rem;
+}
+
+.register_container__terms_container span {
+    font-weight: bold;
+    color: #0501c5;
+}
+
+#form2 input {
+    margin: 5px 0 5px 0;
+    width: 100%;
+    padding: 10px;
+}
+
+.register_container__form__submit_htn {
+    text-align: center;
+    width: 100%;
+    margin-top: 10px;
+    height: auto;
+    color: #ffffff;
+    padding: 10px;
+    background: #0501c5;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+/* Style the form fields */
+.register_container__form_container input,
+.register_container__form_container select {
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+    padding: 10px;
+    width: 100%; /* Adjust as needed */
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    color: #333;
+}
+
+.register_container__form_container form .page {
+    width: 25%;
+}
+
+
+.register_container form label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 1.2rem;
+    color: #fff;
+}
+
+.register_container .register_container__form_container {
+    width: 100%;
+}
+
+.register_container__form_container form {
+    display: flex;
+    width: 400%;
+    align-items: center;
+}
+
+#profile_picture_button {
+    border-radius: 50%;
+    width: 75%;
+    height: 75%;
+    z-index: 10; /* Adjust as needed */
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-color: red;
+    margin: auto;
+}
+
+.page_1_inner_container {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.profile_picture_container, .fields_page_1 {
+    width: 50%;
+}
+
+#next-2-btn {
+    width: 100%;
+    height: 65px;
+    border-radius: 10px;
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 6px;
+    color: #ffffff;
+    background: #0501c5;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.page_2_btn_container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.prev-1, .next-3, .prev-2, .submit-btn {
+    width: 50%;
+    height: 65px;
+    border-radius: 10px;
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 6px;
+    color: #ffffff;
+    background: #0501c5;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.page__field_btn {
+    display: flex;
+}
+
+.profile_picture_container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#profile_picture {
+    display: none;
+}
+
+#page_2 {
+    width: 25%;
+    display: block;
+}

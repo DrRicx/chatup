@@ -25,25 +25,28 @@ SECRET_KEY = 'django-insecure-s+5&**)fp$h808hg-wszk&laxkf8^u+#=4w!8xts_7ap_oos=p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 ALLOWED_HOSTS = ['192.168.245.233', '127.0.0.1', 'localhost']
 
 # Application definition
 ASGI_APPLICATION = 'chatup.asgi.application'
 
+LOGIN_REDIRECT_URL = 'admin/'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 INSTALLED_APPS = [
     'daphne',
     'channels',
+    #'grappelli',
     'bootstrap5',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "chat.apps.ChatConfig"
+    'chat.apps.ChatConfig',
 ]
 
 MIDDLEWARE = [
@@ -61,7 +64,7 @@ ROOT_URLCONF = 'chatup.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
+        'DIRS': [BASE_DIR, 'templates']
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -126,9 +129,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticxfiles')
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -147,3 +154,6 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+JET_PROJECT = 'admin_panel_5503'
+JET_TOKEN = '27556f05-bf87-48a8-88aa-26041e65f7a7'

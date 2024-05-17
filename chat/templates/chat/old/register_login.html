@@ -1,0 +1,40 @@
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load static %}
+{% block content %}
+    {% if messages %}
+        <div class="alert alert-danger" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% for pin in pin %}
+    	{{ pin.channel }}
+    {% endfor %}
+
+    {% if page == 'login' %}
+        <form action="" method="POST">
+            {% csrf_token %}
+            <label>Username:</label>
+            <input type="text" name="username"/>
+
+            <label>Password:</label>
+            <input type="password" name="password"/>
+            <br>
+
+            <a href="{% url 'password_reset' %}">Reset Password</a>
+
+            <input type="submit" value="Login"/>
+        </form>
+    {% else %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            {% buttons %}
+                <button type="submit" class="btn btn-primary">Submit</button>
+            {% endbuttons %}
+        </form>
+    {% endif %}
+{% endblock %}

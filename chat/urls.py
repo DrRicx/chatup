@@ -1,6 +1,7 @@
 # chat/urls.py
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from .views import *
 
 from . import views
 
@@ -44,6 +45,8 @@ urlpatterns = [
 
     path('get_messages/<str:subchannel_name>/', views.get_messages, name='get_messages'),
     path('direct_message/<int:user_id>/', views.direct_message_view, name='direct_message'),
+
+    path("account/<int:user_id>/edit/", views.editAccountAndPasswordPage, name="editAccount"),
     # Password reset path/urls
     path('password_change/done/',
          auth_views.PasswordChangeDoneView.as_view(template_name='chat/password_reset/password_change_done.html'),
