@@ -1,5 +1,4 @@
 {% load static %}
-<!-- chat/templates/chat/subchannel/subchannel.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,7 +23,6 @@
             </div>
         {% endif %}
         {% if subchannel %}
-            <!-- Add this div to display the chat messages -->
             <div id="chat-messages">
                 {% for message in messages %}
                     <div class="chat-messages__content">
@@ -50,89 +48,134 @@
 
     {{ subchannel.unique_key|json_script:"unique_key" }}
     <script>
-        var unique_Key = JSON.parse(document.getElementById("unique_key").textContent);
+    var unique_Key = JSON.parse(document.getElementById("unique_key").textContent);
 
-        var chatSocket = new WebSocket(
-            'ws://'
-            + window.location.host
-            + '/ws/channels/'
-            + unique_Key
-            + '/'
+    var chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/channels/'
+        + unique_Key
+        + '/'
+    );
+
+    var sentMessages = [];
+
+    chatSocket.onopen = function (e) {
+        console.log("The connection was set up successfully!");
+    };
+
+    chatSocket.onclose = function (e) {
+        console.log("Connection closed");
+    };
+
+    document.querySelector("#id_message_send_input").focus();
+    document.querySelector("#id_message_send_input").onkeyup = function (e) {
+        if (e.keyCode == 13) {
+            document.querySelector("#id_message_send_button").click();
+        }
+    };
+
+    document.querySelector("#id_message_send_button").onclick = function (e) {
+        var messageInput = document.querySelector("#id_message_send_input").value;
+        var username = '{{ request.user.username }}';
+        var profilePictureUrl = '{{ request.user.account.profile_picture.url }}';
+
+        // Store the sent message temporarily
+        sentMessages.push({
+            message: messageInput,
+            username: username,
+            profile_picture_url: profilePictureUrl
+        });
+
+        chatSocket.send(
+            JSON.stringify({
+                message: messageInput,
+                username: username,
+                profile_picture_url: profilePictureUrl
+            })
         );
 
-        chatSocket.onopen = function (e) {
-            console.log("The connection was set up successfully!");
-        };
+        // Add the message to the chat-messages div immediately
+        var div = document.createElement("div");
+        div.className = "chat-messages__content";
 
-        chatSocket.onclose = function (e) {
-            console.log("Something unexpected happened!");
-        };
+        var img = document.createElement("img");
+        img.src = profilePictureUrl;
+        img.alt = username + "'s profile picture";
+        img.width = 50;
+        img.height = 50;
+        img.style.borderRadius = "100%";
+        div.appendChild(img);
 
-        document.querySelector("#id_message_send_input").focus();
-        document.querySelector("#id_message_send_input").onkeyup = function (e) {
-            if (e.keyCode == 13) {
-                document.querySelector("#id_message_send_button").click();
-            }
-        };
+        var messageDiv = document.createElement("div");
+        messageDiv.innerHTML = "<div>" + username + "</div><div><p>" + messageInput + "</p></div>";
+        div.appendChild(messageDiv);
 
-        document.querySelector("#id_message_send_button").onclick = function (e) {
-            var messageInput = document.querySelector("#id_message_send_input").value;
-            var username = '{{ request.user.username }}';
-            var profilePictureUrl = '{{ request.user.account.profile_picture.url }}';
+        document.querySelector("#chat-messages").appendChild(div);
 
-            console.log("Sending profile picture URL: " + profilePictureUrl);
+        // Clear the input field
+        document.querySelector("#id_message_send_input").value = "";
+    };
 
-            chatSocket.send(
-                JSON.stringify({
-                    message: messageInput,
-                    username: username,
-                    profile_picture_url: profilePictureUrl
-                })
-            );
-        };
+    window.onload = function () {
+        fetch(`/get_messages/${unique_Key}/`)
+            .then(response => response.json())
+            .then(messages => {
+                const chatMessagesDiv = document.querySelector("#chat-messages");
+                messages.forEach(message => {
+                    var div = document.createElement("div");
+                    div.className = "chat-messages__content";
 
-        window.onload = function () {
-            fetch(`/get_messages/${unique_Key}/`)
-                .then(response => response.json())
-                .then(messages => {
-                    const chatMessagesDiv = document.querySelector("#chat-messages");
-                    messages.forEach(message => {
-                        var div = document.createElement("div");
+                    var img = document.createElement("img");
+                    img.src = message.profile_picture_url;
+                    img.alt = message.sender__username + "'s profile picture";
+                    img.width = 50;
+                    img.height = 50;
+                    img.style.borderRadius = "100%";
 
-                        var img = document.createElement("img");
-                        img.src = message.profile_picture_url;
-                        img.alt = message.sender__username + "'s profile picture";
-                        img.width = 50;
-                        img.height = 50;
-                        img.style.borderRadius = "100%";
+                    div.appendChild(img);
 
-                        div.appendChild(img);
-                        div.innerHTML += "<strong>" + message.sender__username + ": </strong>" + message.content;
-                        chatMessagesDiv.appendChild(div);
-                    });
+                    var messageDiv = document.createElement("div");
+                    messageDiv.innerHTML = "<div>" + message.sender__username + "</div><div><p>" + message.content + "</p></div>";
+                    div.appendChild(messageDiv);
+
+                    chatMessagesDiv.appendChild(div);
                 });
-        };
+            });
+    };
 
-        chatSocket.onmessage = function (e) {
-            const data = JSON.parse(e.data);
+    chatSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
 
-            console.log("Received profile picture URL: " + data.profile_picture_url);
+        // Check if the message is from the current user and has already been rendered
+        var isSentMessage = sentMessages.some(msg => msg.message === data.message && msg.username === data.username);
 
-            var div = document.createElement("div");
-            var img = document.createElement("img");
-            img.src = data.profile_picture_url;
-            img.alt = data.username + "'s profile picture";
-            img.width = "50";
-            img.height = "50";
-            img.style.borderRadius = "100%";
-            div.appendChild(img);
-            div.innerHTML += "<strong>" + data.username + ": </strong>" + data.message;
-            document.querySelector("#id_message_send_input").value = "";
-            document.querySelector("#chat-messages").appendChild(div);
-        };
-    </script>
-{% else %}
+        // If the message is from the current user and has already been rendered, return immediately
+        if (isSentMessage) {
+            // Remove the message from sentMessages after rendering
+            sentMessages = sentMessages.filter(msg => msg.message !== data.message || msg.username !== data.username);
+            return;
+        }
+
+        var div = document.createElement("div");
+        div.className = "chat-messages__content";
+
+        var img = document.createElement("img");
+        img.src = data.profile_picture_url;
+        img.alt = data.username + "'s profile picture";
+        img.width = "50";
+        img.height = "50";
+        img.style.borderRadius = "100%";
+        div.appendChild(img);
+
+        var messageDiv = document.createElement("div");
+        messageDiv.innerHTML = "<div>" + data.username + "</div><div><p>" + data.message + "</p></div>";
+        div.appendChild(messageDiv);
+
+        document.querySelector("#chat-messages").appendChild(div);
+    };{% else %}
     <p>No subchannel selected</p>
 {% endif %}
+</script>
 </body>
 </html>
