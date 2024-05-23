@@ -6,9 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .forms import *
-from .friend_request_status import *
 from .models import *
-
 
 def splashPage(request):
     """

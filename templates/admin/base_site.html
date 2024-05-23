@@ -1,0 +1,10 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'custom_admin.css' %}">
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}

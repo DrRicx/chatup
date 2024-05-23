@@ -1,30 +1,66 @@
-<!-- home.html -->
 {% extends 'home_page.html' %}
 {% load static %}
 {% block content %}
     <div class="chat">
         <div class="chat__column">
-            {{ request.user }}
             <div class="chat__column--channels">
+                <button type="button" class="btn btn-primary" id="myBtn">
+                    <i class='bx bx-plus-medical'></i>
+                </button>
+                <!-- The Modal -->
+                <div class="modal" id="myModal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                                <h4 class="modal-title">Add Channel</h4>
+                                <span class="close">&times;</span>
+                            </div>
+
+                            <!-- Modal Body -->
+                            <div class="modal-body">
+                                <form method="POST" id="addChannelForm">
+                                    {% csrf_token %}
+                                    <label for="channelName">Channel Name:</label><br>
+                                    <input type="text" id="channelName" name="channelName"><br>
+                                    <button type="submit" class="btn btn-primary">Add Channel</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {% for channel in channels %}
                     <div class="chat__column--channels__item">
-                        <a class="channel-link" href="#"
-                           data-channel-id="{{ channel.id }}">{{ channel.channel_name }}</a>
-                        <a class="pin-channel-link" href="{% url 'pin_channel' channel.id %}">Pin</a>
+                        <div class="channel-container">
+                            <a class="channel-link" href="#" data-channel-id="{{ channel.id }}"
+                               data-channel-name="{{ channel.channel_name }}">
+                                <img src="{{ channel.channel_picture.url }}" alt="" class="channel_img">
+                            </a>
+                            <div class="channel-actions" style="display: none;">
+                                <a class="create-subchannel-link" href="{% url 'createSubChannelChannel' channel.id %}"
+                                   style="display: none;">
+                                    <i class='bx bx-plus'></i>
+                                </a>
+                                <!-- The Modal -->
+                                <a class="pin-channel-link" href="{% url 'pin_channel' channel.id %}"
+                                   style="display: none;">
+                                    <i class='bx bx-pin'></i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
         </div>
-        <div class="chat__column">
-            <div id="chat__column--subchannels" class="chat__column--subchannels">
-            </div>
+        <div class="chat__column" id="chat__column-id">
+            <div class="chat__column--channel_name" id="channels_name"></div>
+            <div id="chat__column--subchannels" class="chat__column--subchannels"></div>
         </div>
-        <div class="chat__column">
-            <div id="chat__column--room" class="chat__column--room">
-            </div>
+        <div class="chat__column-room_container">
         </div>
-    </div>
 
+
+    </div>
     {% if messages %}
         <ul class="messages">
             {% for message in messages %}
@@ -37,14 +73,27 @@
         $(document).ready(function () {
             var lastClickedChannel = localStorage.getItem('lastClickedChannel');
             var lastClickedSubchannel = localStorage.getItem('lastClickedSubchannel');
+            var pinnedChannel = localStorage.getItem('pinnedChannel');
 
+
+            // When the user submits the form, send an AJAX request to the server
             $('.channel-link').click(function (e) {
                 e.preventDefault();
 
                 var channelId = $(this).data('channel-id');
+                var channelName = $(this).data('channel-name');
                 var url = '/channels/' + channelId;
 
                 localStorage.setItem('lastClickedChannel', channelId);
+
+                // Get the channel actions div
+                var channelActions = $(this).siblings('.channel-actions');
+
+                // Show the pin link and the create subchannel link
+                channelActions.children().show();
+
+                // Append the channel name and the channel actions to the 'channels_name' element
+                $('#channels_name').html(channelName).append(channelActions.clone().children());
 
                 $.ajax({
                     type: 'GET',
@@ -75,7 +124,7 @@
                                 type: 'GET',
                                 url: url,
                                 success: function (data) {
-                                    $('#chat__column--room').html(data);
+                                    $('.chat__column-room_container').html(data); // Insert the received HTML into the chat__column-room_container div
                                 },
                                 error: function (xhr, status, error) {
                                     console.error('Error:', error);
@@ -91,6 +140,66 @@
                     }
                 });
             });
+
+            // Get the modal
+            var modal = document.getElementById("myModal");
+
+// Get the button that opens the modal
+            var btn = document.getElementById("myBtn");
+
+// When the user clicks the button, open the modal
+            btn.onclick = function () {
+                modal.style.display = "block";
+            }
+
+// Get the <span> element that closes the modal
+            var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks on <span> (x), close the modal
+            span.onclick = function () {
+                modal.style.display = "none";
+            }
+
+// When the user clicks anywhere outside of the modal, close it
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            document.getElementById("addChannelForm").onsubmit = function (event) {
+                event.preventDefault(); // Prevent the form from submitting normally
+
+                // Get the channel name from the form
+                var channelName = document.getElementById("channelName").value;
+
+                // Send an AJAX request to the server
+                $.ajax({
+                    type: "POST",
+                    url: "/create_channel/", // Update this to the URL for creating a new channel
+                    data: {
+                        'channel_name': channelName, // Send the channel name to the server
+                        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(), // Send the CSRF token to the server
+                    },
+                    success: function (data) {
+                        // If the request is successful, close the modal and refresh the page
+                        modal.style.display = "none";
+                        console.log("hello");
+                        location.reload();
+                    },
+                    error: function (xhr, status, error) {
+                        // If there's an error, log it to the console
+                        console.error('Error:', error);
+                    }
+                });
+            }
+
+            if (pinnedChannel) {
+                $('.channel-link[data-channel-id="' + pinnedChannel + '"]').click();
+            } else {
+                // If not, click the first channel link
+                $('.channel-link:first').click();
+            }
 
             if (lastClickedChannel) {
                 $('.channel-link[data-channel-id="' + lastClickedChannel + '"]').click();
@@ -108,5 +217,4 @@
             }
         });
     </script>
-
 {% endblock %}

@@ -37,7 +37,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 INSTALLED_APPS = [
     'daphne',
     'channels',
-    #'grappelli',
+    # 'grappelli',
     'bootstrap5',
     'rest_framework',
     'django.contrib.admin',
@@ -73,6 +73,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'chat.context_processors.chat_context_processor',
+                'chat.context_processors.admin_context',
             ],
         },
     },
