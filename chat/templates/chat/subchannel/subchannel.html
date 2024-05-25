@@ -11,17 +11,27 @@
     <div class="room">
         <div class="room__room-name">
             <p>{{ subchannel.subchannel_name }}</p>
+            <div class="room__name-tools">
+                <button id="toggle-sidebar"><i class='bx bxs-bookmark-star'></i></button>
+                <a href="{% url 'logout' %}"><i class='bx bx-log-out-circle'></i></a>
+            </div>
+
         </div>
-        {% if favourite_messages %}
-            <h2>Favourite Messages</h2>
-            <div id="favourite-messages">
+        <div id="favourite-messages-sidebar">
+            <div class="favourite-message-container">
+                Favourite Messages
+                <button id="close-sidebar"><i class='bx bx-x'></i></button>
+            </div>
+            {% if favourite_messages %}
                 {% for message in favourite_messages %}
                     <div>
                         <strong>{{ message.message.sender.username }}: </strong>{{ message.message.content }}
                     </div>
                 {% endfor %}
-            </div>
-        {% endif %}
+            {% else %}
+                <p>No favourite messages</p>
+            {% endif %}
+        </div>
         {% if subchannel %}
             <div id="chat-messages">
                 {% for message in messages %}
@@ -33,7 +43,14 @@
                             <div>{{ message.sender }}</div>
                             <div><p>{{ message.content }}</p></div>
                         </div>
-                        <a href="{% url 'favourite_message_in_subchannel' message.id %}"><i class='bx bx-star'></i></a>
+                        {% if message.is_favourited %}
+                            <a href="{% url 'unfavourite_message_in_subchannel' message.id %}"><i
+                                    class='bx bxs-star'></i>></a>
+                        {% else %}
+                            <a href="{% url 'favourite_message_in_subchannel' message.id %}"><i
+                                    class='bx bx-star'></i></a>
+                        {% endif %}
+
                     </div>
                 {% endfor %}
             </div>
@@ -45,9 +62,21 @@
             <button type="submit" id="id_message_send_button"><i class='bx bxs-paper-plane'></i></button>
         </div>
     </div>
-
     {{ subchannel.unique_key|json_script:"unique_key" }}
-    <script>
+{% else %}
+    <p>No subchannel selected</p>
+{% endif %}
+<script>
+    document.getElementById('toggle-sidebar').addEventListener('click', function () {
+        var sidebar = document.getElementById('favourite-messages-sidebar');
+        sidebar.style.display = (sidebar.style.display === 'none') ? 'block' : 'none';
+    });
+
+    document.getElementById('close-sidebar').addEventListener('click', function () {
+        var sidebar = document.getElementById('favourite-messages-sidebar');
+        sidebar.style.display = 'none';
+    });
+
     var unique_Key = JSON.parse(document.getElementById("unique_key").textContent);
 
     var chatSocket = new WebSocket(
@@ -58,7 +87,7 @@
         + '/'
     );
 
-    var sentMessages = [];
+    var sentMessageIds = new Set();
 
     chatSocket.onopen = function (e) {
         console.log("The connection was set up successfully!");
@@ -80,66 +109,37 @@
         var username = '{{ request.user.username }}';
         var profilePictureUrl = '{{ request.user.account.profile_picture.url }}';
 
-        // Store the sent message temporarily
-        sentMessages.push({
+        // Create a unique ID for the sent message
+        var messageId = generateUUID();
+
+        // Store the sent message ID
+        sentMessageIds.add(messageId);
+
+        // Create the sent message object
+        var sentMessage = {
+            id: messageId,
             message: messageInput,
             username: username,
             profile_picture_url: profilePictureUrl
-        });
+        };
 
-        chatSocket.send(
-            JSON.stringify({
-                message: messageInput,
-                username: username,
-                profile_picture_url: profilePictureUrl
-            })
-        );
-
-        // Add the message to the chat-messages div immediately
-        var div = document.createElement("div");
-        div.className = "chat-messages__content";
-
-        var img = document.createElement("img");
-        img.src = profilePictureUrl;
-        img.alt = username + "'s profile picture";
-        img.width = 50;
-        img.height = 50;
-        img.style.borderRadius = "100%";
-        div.appendChild(img);
-
-        var messageDiv = document.createElement("div");
-        messageDiv.innerHTML = "<div>" + username + "</div><div><p>" + messageInput + "</p></div>";
-        div.appendChild(messageDiv);
-
-        document.querySelector("#chat-messages").appendChild(div);
+        // Send the message via WebSocket
+        chatSocket.send(JSON.stringify(sentMessage));
 
         // Clear the input field
         document.querySelector("#id_message_send_input").value = "";
     };
-
     window.onload = function () {
         fetch(`/get_messages/${unique_Key}/`)
             .then(response => response.json())
             .then(messages => {
                 const chatMessagesDiv = document.querySelector("#chat-messages");
                 messages.forEach(message => {
-                    var div = document.createElement("div");
-                    div.className = "chat-messages__content";
-
-                    var img = document.createElement("img");
-                    img.src = message.profile_picture_url;
-                    img.alt = message.sender__username + "'s profile picture";
-                    img.width = 50;
-                    img.height = 50;
-                    img.style.borderRadius = "100%";
-
-                    div.appendChild(img);
-
-                    var messageDiv = document.createElement("div");
-                    messageDiv.innerHTML = "<div>" + message.sender__username + "</div><div><p>" + message.content + "</p></div>";
-                    div.appendChild(messageDiv);
-
-                    chatMessagesDiv.appendChild(div);
+                    displayMessage({
+                        message: message.content,
+                        username: message.sender__username,
+                        profile_picture_url: message.profile_picture_url
+                    });
                 });
             });
     };
@@ -147,16 +147,19 @@
     chatSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
 
-        // Check if the message is from the current user and has already been rendered
-        var isSentMessage = sentMessages.some(msg => msg.message === data.message && msg.username === data.username);
-
-        // If the message is from the current user and has already been rendered, return immediately
-        if (isSentMessage) {
-            // Remove the message from sentMessages after rendering
-            sentMessages = sentMessages.filter(msg => msg.message !== data.message || msg.username !== data.username);
+        // Check if the message ID is already in sentMessageIds
+        if (sentMessageIds.has(data.id)) {
+            // Remove the message ID from sentMessageIds after rendering
+            sentMessageIds.delete(data.id);
             return;
         }
 
+        // Display the incoming message
+        displayMessage(data);
+    };
+
+    function displayMessage(data) {
+        console.log("displaymessage");
         var div = document.createElement("div");
         div.className = "chat-messages__content";
 
@@ -173,9 +176,18 @@
         div.appendChild(messageDiv);
 
         document.querySelector("#chat-messages").appendChild(div);
-    };{% else %}
-    <p>No subchannel selected</p>
-{% endif %}
+    }
+
+    function generateUUID() {
+        console.log("UID");
+
+        // Generate a simple unique ID for tracking sent messages
+        return 'xxxx-xxxx-xxxx-xxxx'.replace(/[x]/g, function () {
+            var r = Math.random() * 16 | 0, v = r;
+            return v.toString(16);
+        });
+    }
+
 </script>
 </body>
 </html>
