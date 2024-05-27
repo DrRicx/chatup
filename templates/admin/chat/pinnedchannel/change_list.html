@@ -1,4 +1,4 @@
-<!-- templates/admin/chat/channels/change_list.html -->
+<!-- templates/admin/chat/pinnedchannel/change_list.html -->
 {% extends "admin/change_list.html" %}
 {% load i18n %}
 {% load static %}
@@ -11,16 +11,15 @@
 {% block breadcrumbs %}{% endblock %}
 
 {% block object-tools %}
-    <a href="{% url 'admin:chat_channels_add' %}" class="add-button">Add New Channel</a>
+    <a href="{% url 'admin:chat_pinnedchannel_add' %}" class="add-button">Add Pin Channel</a>
 {% endblock %}
 
 {% block result_list %}
     <table id="result_list">
         <thead>
         <tr>
-            <th>Channel Name</th>
-            <th>Host</th>
-            <th>Is Private</th>
+            <th>Channel</th>
+            <th>User</th>
             <th>Actions</th> <!-- Add a new header for the actions -->
         </tr>
         </thead>
@@ -28,13 +27,12 @@
         {% for item in cl.result_list %}
             <tr>
                 <!-- Add a link to the channel name -->
-                <td><a href="{% url 'admin:chat_channels_change' item.id %}">{{ item.channel_name }}</a></td>
-                <td>{{ item.host }}</td>
-                <td>{{ item.is_private }}</td>
+                <td><a href="{% url 'admin:chat_pinnedchannel_change' item.id %}">{{ item.channel }}</a></td>
+                <td>{{ item.user }}</td>
                 <!-- Add an edit button and a delete button -->
                 <td>
-                    <a href="{% url 'admin:chat_channels_change' item.id %}" class="edit-button">Edit</a> |
-                    <a href="{% url 'admin:chat_channels_delete' item.id %}" class="delete-button">Delete</a>
+                    <a href="{% url 'admin:chat_pinnedchannel_change' item.id %}" class="edit-button">Edit</a> |
+                    <a href="{% url 'admin:chat_pinnedchannel_delete' item.id %}" class="delete-button">Delete</a>
                 </td>
             </tr>
         {% endfor %}

@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -47,6 +47,7 @@ class Account(models.Model):
     student_number = models.CharField(max_length=12, null=True, blank=True)
     middle_name = models.CharField(max_length=12, null=True, blank=True)
     birthdate = models.DateField(null=True, blank=True)
+    account_type = models.ForeignKey('AccountType', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.user.username
@@ -57,6 +58,18 @@ class Account(models.Model):
         :return:
         """
         return str(self.profile_picture)[str(self.profile_picture).index(f'profile_images/{self.pk}/'):]
+
+
+class AccountType(models.Model):
+    type = models.CharField(
+        max_length=25,
+        choices=[('ADMIN', 'admin'), ('SUPERADMIN', 'superadmin')]
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.type
 
 
 class Channels(models.Model):
@@ -184,6 +197,17 @@ class FavouriteMessage(models.Model):
 
     def __str__(self):
         return f"{self.user.username} favourited {self.message.content[:50]} in {self.subchannel.subchannel_name}"
+
+    @classmethod
+    def is_favourited(cls, user, message, subchannel):
+        """
+        Method to check if a message is favourited by a user in a specific subchannel.
+        :param user: The user to check for.
+        :param message: The message to check.
+        :param subchannel: The subchannel to check in.
+        :return: True if the message is favourited, False otherwise.
+        """
+        return cls.objects.filter(user=user, message=message, subchannel=subchannel).exists()
 
     @classmethod
     def favourite_message(cls, user, message, subchannel):

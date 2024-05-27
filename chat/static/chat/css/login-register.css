@@ -271,15 +271,23 @@ form label {
 }
 
 #profile_picture_button {
+    display: flex;
     border-radius: 50%;
+    justify-content: center;
+    align-items: center;
     width: 75%;
     height: 75%;
     z-index: 10; /* Adjust as needed */
     overflow: hidden;
     background-size: cover;
     background-position: center;
-    background-color: red;
+    background-color: whitesmoke;
     margin: auto;
+}
+
+#profile_picture_button i{
+    font-size: 45px;
+    font-weight: bold;
 }
 
 .page_1_inner_container {

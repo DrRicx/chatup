@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+{% load static %}
 <head>
     <meta charset="UTF-8">
     <title>Create SubChannel</title>
+    <link rel="stylesheet" href="{% static 'chat/css/sub-creation.css' %}">
 </head>
 <body>
-<h1>Create SubChannel</h1>
-{% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Create</button>
-</form>
+<div class="container">
+    <h1>Create SubChannel</h1>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <form method="POST" class="form-group">
+        {% csrf_token %}
+        <label for="subchannel" class="subchannel_label">SUBCHANNEL NAME</label><br>
+        <input type="text" name="subchannel_name" id="subchannel_name" class="subchannel_input"/><br>
+        <div class="button_container">
+            <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+    </form>
+</div>
 </body>
 </html>

@@ -13,7 +13,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.subchannel = await self.get_subchannel(self.unique_key)
         self.room_group_name = f'chat_{self.unique_key}'
 
+        # self.user_id = self.scope["url_route"]["kwargs"].get("user_id")
+        # self.account = await self.get_id()
+        # self.private_chat = f'private_chat_{self.user_id}'
+
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        # await self.channel_layer.group_add(self.private_chat, self.channel_name)  # Add private chat to the group
+
         await self.accept()
 
     async def disconnect(self, close_code):
@@ -75,3 +81,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_account(self, user):
         return Account.objects.get(user=user)
+
+    @database_sync_to_async
+    def get_id(self, user):
+        return user.id

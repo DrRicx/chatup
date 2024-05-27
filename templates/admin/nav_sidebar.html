@@ -25,8 +25,7 @@
             {% for model in app.models %}
                 <li>
                     <a href="{{ model.admin_url }}">
-                        <i class="bx bx-grid-alt"></i>
-                        <span class="nav-item">{{ model.name }}</span>
+                        <span class="nav-item" style="margin-left: 10px">{{ model.name }}</span>
                     </a>
                 </li>
             {% endfor %}

@@ -34,8 +34,17 @@ class ChannelsAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Categories)
-admin.site.register(SubChannel)
-admin.site.register(Message)
+@admin.register(SubChannel)
+class SubChannelAdmin(admin.ModelAdmin):
+    list_display = ('subchannel_name', 'channel')
+    search_fields = ('subchannel_name', 'channel')
+    list_filter = ('created', 'channel')
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('content', 'sender', 'recipient', 'subchannel')
+    search_fields = ('content', 'subchannel')
+    list_filter = ('content', 'subchannel')
 
 
 @admin.register(FavouriteMessage)
@@ -48,5 +57,5 @@ class FavouriteMessageAdmin(admin.ModelAdmin):
 @admin.register(PinnedChannel)
 class PinnedChannelAdmin(admin.ModelAdmin):
     list_display = ('channel', 'user')
-    search_fiel = ('channel', 'user')
+    search_field = ('channel', 'user')
     list_filter = ('channel', 'user')

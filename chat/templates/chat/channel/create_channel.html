@@ -1,15 +1,43 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Create Channel</title>
+    <link rel="stylesheet" href="{% static 'chat/css/channel-creation.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
-    <h2>Create a Channel</h2>
-    <form action="" method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Create Channel">
-    </form>
+<div class="channel-form">
+    <div class="channel-form__header-title">
+        <h2>Create a Channel</h2>
+    </div>
+    <div class="channel-form__form">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="file-input" class="custom-file-upload">
+                <div class="circle">
+                    <i class='bx bx-plus-medical'></i>
+                </div>
+            </label>
+            <input id="file-input" type="file" name="channel_picture" accept="image/*" style="display: none;"/>
+            {{ form.channel_name.label_tag }}
+            {{ form.channel_name }}
+            <input type="submit" value="Create Channel" id="submitInp">
+        </form>
+    </div>
+</div>
+<script>
+    document.getElementById('file-input').addEventListener('change', function (e) {
+        var reader = new FileReader();
+        reader.onload = function (event) {
+            document.querySelector('.circle').style.backgroundImage = 'url(' + event.target.result + ')';
+            document.querySelector('.circle').style.backgroundSize = 'cover';
+            document.querySelector('.circle').style.backgroundPosition = 'center';
+            document.querySelector('.bx-plus-medical').style.display = 'none';
+        }
+        reader.readAsDataURL(e.target.files[0]);
+    });
+</script>
 </body>
 </html>

@@ -1,12 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.core import serializers
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .forms import *
 from .models import *
+
 
 def splashPage(request):
     """
@@ -79,7 +81,13 @@ def logoutPage(request):
     :return:
     """
     logout(request)
-    redirect('splashPage')
+    return redirect('splashPage')
+
+
+def fetch_users(request):
+    users = User.objects.all()
+    users_list = [{'id': user.id, 'username': user.username} for user in users]
+    return JsonResponse(users_list, safe=False)
 
 
 def accountPage(request, *args, **kwargs):
@@ -131,10 +139,12 @@ def createChannelPage(request):
     return render(request, 'chat/channel/create_channel.html', context)
 
 
+@login_required
 def homePage(request):
     channels = Channels.objects.all()
+    user = User.objects.all()
     channel_subchannels = {channel: SubChannel.objects.filter(channel=channel) for channel in channels}
-    context = {'channel_subchannels': channel_subchannels, 'channels': channels}
+    context = {'channel_subchannels': channel_subchannels, 'channels': channels, 'user': user}
     return render(request, 'chat/home.html', context)
 
 
@@ -230,7 +240,7 @@ def createSubChannel(request, channel_id, category_id=None):
                 if category:
                     return redirect('categoryPage', channel_id=channel_id)
                 else:
-                    return redirect('channels')
+                    return redirect('home')
     else:
         form = SubChannelForm(channel=channel, category=category)
     context = {'form': form, 'channel': channel}
@@ -309,7 +319,10 @@ def subchannelRoom(request, unique_key):
     subchannel = SubChannel.objects.filter(unique_key=unique_key).first()
     if subchannel is None:
         return HttpResponse("Subchannel not found")
-    messages = Message.objects.filter(subchannel=subchannel).order_by('timestamp')
+
+    messages = Message.objects.filter(subchannel=subchannel)
+    for message in messages:
+        message.is_favourited = FavouriteMessage.is_favourited(request.user, message, subchannel)
 
     favourite_messages = FavouriteMessage.objects.filter(user=request.user, subchannel=subchannel)
 
@@ -325,7 +338,8 @@ def subchannelRoom(request, unique_key):
 def subchannels_json(request, channel_id):
     if request.method == 'GET':
         subchannels = SubChannel.objects.filter(channel_id=channel_id)
-        subchannel_list = [{'id': sub.id, 'name': sub.subchannel_name, 'unique_key': sub.unique_key} for sub in subchannels]
+        subchannel_list = [{'id': sub.id, 'name': sub.subchannel_name, 'unique_key': sub.unique_key} for sub in
+                           subchannels]
         response_data = {
             'channel_id': channel_id,
             'subchannels': subchannel_list

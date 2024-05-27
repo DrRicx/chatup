@@ -10,19 +10,23 @@
 }
 
 .add-button {
-    background-color: #4CAF50; /* Green background */
+    background-color: #091f3c; /* Green background */
     border: none; /* No border */
-    color: white; /* White text */
     padding: 15px 32px; /* Some padding */
     text-align: center; /* Centered text */
     text-decoration: none; /* No underline */
     display: inline-block;
+    font-weight: bold;
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer; /* Mouse pointer on hover */
+    color: white !important;
 }
 
-
+.add-button a{
+    text-decoration: none;
+    color: white !important; /* Add !important */
+}
 /* custom_model.css */
 
 #result_list {

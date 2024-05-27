@@ -8,10 +8,21 @@
     overflow-x: hidden;
 }
 
+.channel-selected {
+    background-color: #4CAF50;
+    border-radius: 10px;
+    padding: 5px;/* Change this to your preferred color */
+}
+
 .chat__column {
     height: 100vh;
-    width: 11%;
+    width: fit-content;
     background-color: #2f3136;
+}
+
+.chat__column {
+    -ms-overflow-style: none; /* for Internet Explorer and Edge */
+    scrollbar-width: none; /* for Firefox */
 }
 
 .chat {
@@ -21,15 +32,21 @@
 
 .chat__column--channels {
     padding: 20px;
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 15px;
+    -ms-overflow-style: none; /* for Internet Explorer and Edge */
+    scrollbar-width: none; /* for Firefox */
     text-align: center;
 }
 
 .channel_img {
-    width: 80px;
-    height: 80px;
+    width: 50px;
+    height: 50px;
     background-size: cover;
     border-radius: 25%;
-    margin-bottom: 10px;
 }
 
 #chat__column-id {
@@ -115,13 +132,26 @@
     cursor: pointer;
 }
 
-#myBtn {
-    width: 80px;
-    height: 80px;
+.add__channel-container {
+    width: 50px;
+    color: white;
+    align-content: center;
+    height: 50px;
     border-radius: 25%;
-    margin-bottom: 10px;
+    background: #2424ec;
+    margin-bottom: 8px;
+}
+
+.add__channel-container i {
+    color: white;
 }
 
 .modal-body button {
     margin-top: 15px;
+}
+
+.message-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }

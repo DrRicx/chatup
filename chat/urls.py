@@ -16,6 +16,7 @@ urlpatterns = [
 
     path("account/<str:user_id>/", views.accountPage, name="account"),
 
+    path('fetch_users/', views.fetch_users, name='fetch_users'),
     path("create_channel/", views.createChannelPage, name="addChannel"),
     path("delete_channel/<str:pk>", views.deleteChannel, name="deleteChannel"),
     path('channels/<int:channel_id>/create_category/', views.createCategory, name='create_category'),

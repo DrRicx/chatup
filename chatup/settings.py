@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import pytz
 from pathlib import Path
 import os
 
@@ -30,14 +30,15 @@ ALLOWED_HOSTS = ['192.168.245.233', '127.0.0.1', 'localhost']
 # Application definition
 ASGI_APPLICATION = 'chatup.asgi.application'
 
-LOGIN_REDIRECT_URL = 'admin/'
+LOGIN_URL = 'login'
+
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 INSTALLED_APPS = [
     'daphne',
     'channels',
-    # 'grappelli',
+    'adminlte3',
     'bootstrap5',
     'rest_framework',
     'django.contrib.admin',
@@ -126,6 +127,8 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
+USE_L10N = True
+
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
@@ -156,6 +159,3 @@ CHANNEL_LAYERS = {
         },
     },
 }
-
-JET_PROJECT = 'admin_panel_5503'
-JET_TOKEN = '27556f05-bf87-48a8-88aa-26041e65f7a7'

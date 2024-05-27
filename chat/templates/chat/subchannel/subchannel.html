@@ -40,7 +40,7 @@
                              alt="{{ message.sender.username }}'s profile picture" width="50" height="50"
                              style="border-radius: 100%">
                         <div>
-                            <div>{{ message.sender }}</div>
+                            <div>{{ message.sender }} | {{ message.timestamp|time }}</div>
                             <div><p>{{ message.content }}</p></div>
                         </div>
                         {% if message.is_favourited %}
@@ -187,7 +187,6 @@
             return v.toString(16);
         });
     }
-
 </script>
 </body>
 </html>

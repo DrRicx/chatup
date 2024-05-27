@@ -11,30 +11,26 @@
 {% block breadcrumbs %}{% endblock %}
 
 {% block object-tools %}
-    <a href="{% url 'admin:chat_channels_add' %}" class="add-button">Add New Channel</a>
+    <a href="{% url 'admin:chat_categories_add' %}" class="add-button">Add Categoryy</a>
 {% endblock %}
 
 {% block result_list %}
     <table id="result_list">
         <thead>
         <tr>
-            <th>Channel Name</th>
-            <th>Host</th>
-            <th>Is Private</th>
-            <th>Actions</th> <!-- Add a new header for the actions -->
+            <th>Categories</th>
+            <th>Action</th>
         </tr>
         </thead>
         <tbody>
         {% for item in cl.result_list %}
             <tr>
                 <!-- Add a link to the channel name -->
-                <td><a href="{% url 'admin:chat_channels_change' item.id %}">{{ item.channel_name }}</a></td>
-                <td>{{ item.host }}</td>
-                <td>{{ item.is_private }}</td>
+                <td><a href="{% url 'admin:chat_categories_change' item.id %}">{{ item.category }}</a></td>
                 <!-- Add an edit button and a delete button -->
                 <td>
-                    <a href="{% url 'admin:chat_channels_change' item.id %}" class="edit-button">Edit</a> |
-                    <a href="{% url 'admin:chat_channels_delete' item.id %}" class="delete-button">Delete</a>
+                    <a href="{% url 'admin:chat_categories_change' item.id %}" class="edit-button">Edit</a> |
+                    <a href="{% url 'admin:chat_categories_delete' item.id %}" class="delete-button">Delete</a>
                 </td>
             </tr>
         {% endfor %}

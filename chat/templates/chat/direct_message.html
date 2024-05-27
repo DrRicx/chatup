@@ -18,10 +18,10 @@
     {{ recipient_username|json_script:"recipient_username" }}
     <script>
         // Get the recipient username from the Django context
-        const recipientUsername = JSON.parse(document.getElementById("recipient_username").textContent);
+        var recipientUsername = JSON.parse(document.getElementById("recipient_username").textContent);
 
         // Create a WebSocket connection
-        const chatSocket = new WebSocket(
+        var chatSocket = new WebSocket(
             'ws://'
             + window.location.host
             + '/ws/direct_message/'

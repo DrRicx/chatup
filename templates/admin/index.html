@@ -14,29 +14,50 @@
 
 {% block content %}
     {% block content_title %}{% endblock %}
-        <h1>DASHBOARD</h1>
+    <h1>DASHBOARD</h1>
 
+    <div class="over_container">
         <div class="overview_numbers">
             <div class="message_count-container">
-                <p>Total messages: </p>
-                <p>{{ message_count }}</p>
+                <div class="count-content">
+                    <p>Total messages: </p>
+                    <strong>{{ message_count }}</strong>
+                </div>
+                <div class="count-icon">
+                    <i class='bx bxs-message-dots'></i>
+                </div>
             </div>
 
             <div class="users_count-container">
-                <p>Total Users: </p>
-                <p>{{ user_count }}</p>
+                <div class="count-content">
+                    <p>Total Users: </p>
+                    <p>{{ user_count }}</p>
+                </div>
+                <div class="count-icon">
+                    <i class='bx bxs-user-pin'></i>
+                </div>
             </div>
 
             <div class="channels_count-container">
-                <p>Total Channels: </p>
-                <p>{{ channel_count }}</p>
+                <div class="count-content">
+                    <p>Total Channels: </p>
+                    <p>{{ channel_count }}</p>
+                </div>
+                <div class="count-icon">
+                    <i class='bx bxs-group'></i>
+                </div>
             </div>
         </div>
+    </div>
 
-        <canvas id="messageChart" width="100px" height="100px"></canvas>
-<canvas id="userChart" width="100px" height="100px"></canvas>
-<canvas id="channelChart" width="100px" height="100px"></canvas>
-        
+    <div class="message-container">
+        <canvas id="messageChart" width="800" height="600"></canvas>
+        <canvas id="channelChart"></canvas>
+    </div>
+
+    <canvas id="userChart"></canvas>
+
+
     <script>
         var dates = {{ dates|safe }} || [];
         var messageCounts = {{ message_counts|safe }} || [];
@@ -47,64 +68,91 @@
         var userCtx = document.getElementById('userChart').getContext('2d');
         var channelCtx = document.getElementById('channelChart').getContext('2d');
 
-        var messageChart = new Chart(messageCtx, {
-            type: 'line',
+        new Chart(messageCtx, {
+            type: 'bar',
             data: {
                 labels: dates,
                 datasets: [{
-                    label: 'Number of Messages',
+                    label: 'Message Count',
                     data: messageCounts,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
-        var userChart = new Chart(userCtx, {
-            type: 'line',
-            data: {
-                labels: dates,
-                datasets: [{
-                    label: 'Number of Users',
-                    data: userCounts,
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1
                 }]
             },
             options: {
+                responsive: true, // Set this to true
+                maintainAspectRatio: false, // Add this line
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        ticks: {
+                            fontColor: 'rgba(255, 99, 132, 1)',
+                            fontSize: 14
+                        },
+                        gridLines: {
+                            color: 'rgba(255, 99, 132, 0.2)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            fontColor: 'rgba(255, 99, 132, 1)',
+                            fontSize: 14
+                        },
+                        gridLines: {
+                            color: 'rgba(255, 99, 132, 0.2)'
+                        }
+                    }
+                },
+                legend: {
+                    labels: {
+                        fontColor: 'rgba(255, 99, 132, 1)',
+                        fontSize: 14
                     }
                 }
             }
         });
 
-        var channelChart = new Chart(channelCtx, {
-            type: 'line',
+        new Chart(channelCtx, {
+            type: 'bar',
             data: {
-                labels: dates,
+                labels: dates, // assuming 'dates' variable is available
                 datasets: [{
-                    label: 'Number of Channels',
+                    label: 'Channel Count',
                     data: channelCounts,
-                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                    borderColor: 'rgba(255, 159, 64, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 }]
             },
             options: {
+                responsive: true,
+                maintainAspectRatio: false, // Add this line
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        ticks: {
+                            fontColor: 'rgba(75, 192, 192, 1)',
+                            fontSize: 14
+                        },
+                        gridLines: {
+                            color: 'rgba(75, 192, 192, 0.2)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            fontColor: 'rgba(75, 192, 192, 1)',
+                            fontSize: 14
+                        },
+                        gridLines: {
+                            color: 'rgba(75, 192, 192, 0.2)'
+                        }
+                    }
+                },
+                legend: {
+                    labels: {
+                        fontColor: 'rgba(75, 192, 192, 1)',
+                        fontSize: 14
                     }
                 }
             }
