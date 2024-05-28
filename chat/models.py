@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User, Permission
 from django.db import models
+from django.apps import apps
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.contrib.contenttypes.models import ContentType
 import random
 import string
 from django.urls import reverse
@@ -34,6 +36,17 @@ def get_default_profile_path(instance, filename):
     :return: Path to store the file.
     """
     return "channelPictureDefault/channel_default.png"
+
+
+def list_all_permissions():
+    permissions = Permission.objects.all()
+    return [perm.codename for perm in permissions]
+
+
+def print_all_permissions():
+    permissions = Permission.objects.all()
+    for perm in permissions:
+        print(perm.codename)
 
 
 class Account(models.Model):
@@ -70,6 +83,13 @@ class AccountType(models.Model):
 
     def __str__(self):
         return self.type
+
+
+class UserPermission(models.Model):
+    account_type = models.ManyToManyField(AccountType)
+
+    def __str__(self):
+        return self.account_type
 
 
 class Channels(models.Model):

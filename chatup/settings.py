@@ -38,6 +38,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 INSTALLED_APPS = [
     'daphne',
     'channels',
+    'adminlte3_theme',
     'adminlte3',
     'bootstrap5',
     'rest_framework',

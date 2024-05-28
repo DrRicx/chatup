@@ -34,11 +34,14 @@ class ChannelsAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Categories)
+
+
 @admin.register(SubChannel)
 class SubChannelAdmin(admin.ModelAdmin):
     list_display = ('subchannel_name', 'channel')
     search_fields = ('subchannel_name', 'channel')
     list_filter = ('created', 'channel')
+
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
@@ -59,3 +62,6 @@ class PinnedChannelAdmin(admin.ModelAdmin):
     list_display = ('channel', 'user')
     search_field = ('channel', 'user')
     list_filter = ('channel', 'user')
+
+
+admin.site.register(AccountType)

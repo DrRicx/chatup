@@ -6,6 +6,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
 
+
 class UserAccountForm(UserCreationForm):
     profile_picture = forms.ImageField(required=False)
     gender = forms.ChoiceField(choices=[('MALE', 'male'), ('FEMALE', 'female')])
@@ -26,14 +27,17 @@ class UserAccountForm(UserCreationForm):
             middle_name = self.cleaned_data.get('middle_name')
 
             # Create Account instance regardless of whether a profile picture is provided
-            Account.objects.create(
+            account = Account.objects.create(
                 user=user,
                 profile_picture=profile_picture if profile_picture is not None else get_default_profile_image(),
                 gender=gender,
                 student_number=student_number,
                 middle_name=middle_name
             )
+            print("About to call assign_view_permissions")
+            account.assign_view_permissions()
         return user
+
 
 class EditAccount(forms.ModelForm):
     username = forms.CharField(max_length=150)
@@ -74,12 +78,14 @@ class EditAccount(forms.ModelForm):
 
 
 class EditPasswordForm(PasswordChangeForm):
-    old_password = forms.CharField(widget=forms.PasswordInput(attrs={'autocomplete': 'current-password', 'autofocus': True}))
+    old_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'autocomplete': 'current-password', 'autofocus': True}))
     new_password1 = forms.CharField(widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}))
     new_password2 = forms.CharField(widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}))
 
     class Meta:
         fields = ('old_password', 'new_password1', 'new_password2')
+
 
 class ChannelForm(forms.ModelForm):
     class Meta:
