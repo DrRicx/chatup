@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 import random
 import string
 from django.urls import reverse
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 
 # Create your models here.
@@ -37,17 +38,18 @@ def get_default_profile_path(instance, filename):
     """
     return "channelPictureDefault/channel_default.png"
 
+class CustomUserManager(AbstractBaseManager):
+    def create_user(self, user_number, password=None, **extra_fields):
+        if not user_number:
+            raise ValueError('The student number must be set')
+        user = self.model(student_number=user_number, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
-def list_all_permissions():
-    permissions = Permission.objects.all()
-    return [perm.codename for perm in permissions]
-
-
-def print_all_permissions():
-    permissions = Permission.objects.all()
-    for perm in permissions:
-        print(perm.codename)
-
+    def create_superuser(self, user_number, password=None, **extra_fields):
+        if extra_fields.get('user_type') != 'employee':
+            raise ValueError ('Superuser must be an employee')
 
 class Account(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
