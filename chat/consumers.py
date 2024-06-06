@@ -3,7 +3,9 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.db import close_old_connections
 import json
-from .models import User, SubChannel, Message, Account
+from .models import SubChannel, Message
+from account.models import UserProfile
+from django.conf import settings
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -68,7 +70,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @sync_to_async
     def get_user(self, username):
-        return User.objects.get(username=username)
+        return settings.AUTH_USER_MODEL.objects.get(username=username)
 
     @sync_to_async
     def get_subchannel(self, unique_key):
@@ -80,7 +82,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_account(self, user):
-        return Account.objects.get(user=user)
+        return UserProfile.objects.get(user=user)
 
     @database_sync_to_async
     def get_id(self, user):

@@ -1,5 +1,7 @@
+from datetime import timezone
 from django.contrib.auth.models import User, Permission
 from django.db import models
+from django.conf import settings
 from django.apps import apps
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -8,25 +10,6 @@ import random
 import string
 from django.urls import reverse
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-
-
-# Create your models here.
-def get_profile_image_filepath(self, filename):
-    """
-    Returns the profile picture with the primary key
-    :param self:
-    :param filename:
-    :return:
-    """
-    return f'profile_images/{self.pk}/{"profile_image.png"}'
-
-
-def get_default_profile_image():
-    """
-    Set a default profile image for each user
-    :return:
-    """
-    return "profilePictureDefault/default_profile.png"
 
 
 def get_default_profile_path(instance, filename):
@@ -38,72 +21,17 @@ def get_default_profile_path(instance, filename):
     """
     return "channelPictureDefault/channel_default.png"
 
-class CustomUserManager(AbstractBaseManager):
-    def create_user(self, user_number, password=None, **extra_fields):
-        if not user_number:
-            raise ValueError('The student number must be set')
-        user = self.model(student_number=user_number, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, user_number, password=None, **extra_fields):
-        if extra_fields.get('user_type') != 'employee':
-            raise ValueError ('Superuser must be an employee')
-
-class Account(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_picture = models.ImageField(null=True, blank=True, upload_to=get_profile_image_filepath,
-                                        default=get_default_profile_image)
-    gender = models.CharField(
-        max_length=6,
-        choices=[('MALE', 'male'), ('FEMALE', 'female')]
-    )
-    student_number = models.CharField(max_length=12, null=True, blank=True)
-    middle_name = models.CharField(max_length=12, null=True, blank=True)
-    birthdate = models.DateField(null=True, blank=True)
-    account_type = models.ForeignKey('AccountType', on_delete=models.SET_NULL, null=True, blank=True)
-
-    def __str__(self):
-        return self.user.username
-
-    def get_profile_filename(self):
-        """
-        Change the upload picture name into 'profile_image'
-        :return:
-        """
-        return str(self.profile_picture)[str(self.profile_picture).index(f'profile_images/{self.pk}/'):]
-
-
-class AccountType(models.Model):
-    type = models.CharField(
-        max_length=25,
-        choices=[('ADMIN', 'admin'), ('SUPERADMIN', 'superadmin')]
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.type
-
-
-class UserPermission(models.Model):
-    account_type = models.ManyToManyField(AccountType)
-
-    def __str__(self):
-        return self.account_type
-
 
 class Channels(models.Model):
-    host = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    host = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     channel_name = models.CharField(max_length=200)
     channel_picture = models.ImageField(upload_to=get_default_profile_path, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
     is_private = models.BooleanField(default=False)
-    members = models.ManyToManyField(User, related_name='channel_members', blank=True)
-    admins = models.ManyToManyField(User, related_name='channel_admins')
+    members = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='channel_members', blank=True)
+    admins = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='channel_admins')
 
     # messages = models.ForeignKey(Message, on_delete=models.CASCADE) # Uncomment this if you have a Message model
 
@@ -123,7 +51,7 @@ class Channels(models.Model):
 
 
 class PinnedChannel(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     channel = models.ForeignKey(Channels, on_delete=models.CASCADE)
 
     class Meta:
@@ -193,8 +121,8 @@ class SubChannel(models.Model):
 
 class Message(models.Model):
     content = models.TextField()
-    sender = models.ForeignKey(User, on_delete=models.CASCADE)
-    recipient = models.ForeignKey(User, related_name='received_messages', null=True, blank=True,
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_messages', null=True, blank=True,
                                   on_delete=models.SET_NULL)
     timestamp = models.DateTimeField(auto_now_add=True)
     subchannel = models.ForeignKey(SubChannel, null=True, blank=True, on_delete=models.CASCADE)
@@ -210,7 +138,7 @@ class Message(models.Model):
 
 
 class FavouriteMessage(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     message = models.ForeignKey(Message, on_delete=models.CASCADE)
     subchannel = models.ForeignKey(SubChannel, on_delete=models.CASCADE)
 

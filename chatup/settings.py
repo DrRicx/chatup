@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-import pytz
+
 from pathlib import Path
 import os
 
@@ -42,13 +42,14 @@ INSTALLED_APPS = [
     'adminlte3',
     'bootstrap5',
     'rest_framework',
+    'account.apps.AccountConfig',
+    'chat.apps.ChatConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'chat.apps.ChatConfig',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +61,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+AUTH_USER_MODEL = 'account.CustomUser'
 
 ROOT_URLCONF = 'chatup.urls'
 
@@ -90,7 +93,7 @@ WSGI_APPLICATION = 'chatup.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'chatupdb',
+        'NAME': 'chatupdatabase',
         'USER': 'root',
         'PASSWORD': '12345',
         'HOST': '127.0.0.1',
