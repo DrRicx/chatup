@@ -14,8 +14,6 @@ urlpatterns = [
 
     path("home/", views.homePage, name="home"),
 
-    path("account/<str:user_id>/", views.accountPage, name="account"),
-
     path('fetch_users/', views.fetch_users, name='fetch_users'),
     path("create_channel/", views.createChannelPage, name="addChannel"),
     path("delete_channel/<str:pk>", views.deleteChannel, name="deleteChannel"),
@@ -47,24 +45,4 @@ urlpatterns = [
     path('get_messages/<str:subchannel_name>/', views.get_messages, name='get_messages'),
     path('direct_message/<int:user_id>/', views.direct_message_view, name='direct_message'),
 
-    path("account/<int:user_id>/edit/", views.editAccountAndPasswordPage, name="editAccount"),
-    # Password reset path/urls
-    path('password_change/done/',
-         auth_views.PasswordChangeDoneView.as_view(template_name='chat/password_reset/password_change_done.html'),
-         name='password_change_done'),
-
-    path('password_change/',
-         auth_views.PasswordChangeView.as_view(template_name='chat/password_reset/password_change.html'),
-         name='password_change'),
-
-    path('password_reset/done/',
-         auth_views.PasswordResetCompleteView.as_view(template_name='chat/password_reset/password_reset_done.html'),
-         name='password_reset_done'),
-
-    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
-
-    path('reset/done/',
-         auth_views.PasswordResetCompleteView.as_view(template_name='chat/password_reset/password_reset_complete.html'),
-         name='password_reset_complete'),
 ]

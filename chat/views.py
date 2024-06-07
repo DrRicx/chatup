@@ -19,10 +19,7 @@ def splashPage(request):
     # Get the channel instance
     channel = Channels.objects.first()
 
-    # Get the admins of the channel
-    admins = channel.admins.all()
-
-    context = {'channel': channel, 'admins': admins}
+    context = {'channel': channel}
     return render(request, "chat/splash-page.html", context)
 
 
@@ -90,40 +87,40 @@ def fetch_users(request):
     return JsonResponse(users_list, safe=False)
 
 
-def accountPage(request, *args, **kwargs):
-    context = {}
-    user_id = kwargs.get("user_id")
-
-    try:
-        account = Account.objects.get(pk=user_id)
-    except Account.DoesNotExist:
-        return HttpResponse("User cannot be found/doesn't exist")
-
-    context['id'] = account.id
-    context['username'] = account.user.username
-
-    # Fetch profile picture and student number
-    try:
-        profile = Account.objects.get(user=account.user)
-        context['profile_picture'] = profile.profile_picture.url
-        context['student_number'] = profile.student_number
-    except Account.DoesNotExist:
-        context['profile_picture'] = None
-        context['student_number'] = None
-
-    # Fetch the channels where the user is a host
-    host_channels = Channels.objects.filter(host=account.user)
-    context['host_channels'] = host_channels
-
-    member_channels = Channels.objects.filter(members=account.user)
-    context['member_channels'] = member_channels
-
-    if request.user == account.user:
-        context['is_current_user'] = True
-    else:
-        context['is_current_user'] = False
-
-    return render(request, 'chat/account.html', context)
+# def accountPage(request, *args, **kwargs):
+#     context = {}
+#     user_id = kwargs.get("user_id")
+#
+#     try:
+#         account = Account.objects.get(pk=user_id)
+#     except Account.DoesNotExist:
+#         return HttpResponse("User cannot be found/doesn't exist")
+#
+#     context['id'] = account.id
+#     context['username'] = account.user.username
+#
+#     # Fetch profile picture and student number
+#     try:
+#         profile = Account.objects.get(user=account.user)
+#         context['profile_picture'] = profile.profile_picture.url
+#         context['student_number'] = profile.student_number
+#     except Account.DoesNotExist:
+#         context['profile_picture'] = None
+#         context['student_number'] = None
+#
+#     # Fetch the channels where the user is a host
+#     host_channels = Channels.objects.filter(host=account.user)
+#     context['host_channels'] = host_channels
+#
+#     member_channels = Channels.objects.filter(members=account.user)
+#     context['member_channels'] = member_channels
+#
+#     if request.user == account.user:
+#         context['is_current_user'] = True
+#     else:
+#         context['is_current_user'] = False
+#
+#     return render(request, 'chat/account.html', context)
 
 
 def createChannelPage(request):
@@ -396,19 +393,3 @@ def unFavouriteMessageSubchannel(request, message_id):
         messages.error(request, f'Message is not favourited.')
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
-
-def editAccountAndPasswordPage(request, user_id):
-    account = get_object_or_404(Account, user__id=user_id)
-    if request.method == 'POST':
-        account_form = EditAccount(request.POST, request.FILES, instance=account)
-        password_form = EditPasswordForm(request.user, request.POST)
-        if account_form.is_valid() and password_form.is_valid():
-            account_form.save()
-            user = password_form.save()
-            update_session_auth_hash(request, user)  # Important!
-            messages.success(request, 'Account and password updated successfully')
-            return redirect('account', user_id=user_id)
-    else:
-        account_form = EditAccount(instance=account)
-        password_form = EditPasswordForm(request.user)
-    return render(request, 'chat/edit_account.html', {'account_form': account_form, 'password_form': password_form})
