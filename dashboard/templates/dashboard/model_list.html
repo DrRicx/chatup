@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ model_name|capfirst }} List</title>
+</head>
+<body>
+    <h1>{{ model_name|capfirst }} List</h1>
+    <a href="{% url 'model_add' app_label=app_label model_name=model_name %}">Add New {{ model_name|capfirst }}</a>
+    <ul>
+        {% for obj in objects %}
+        <li><a href="{% url 'model_edit' app_label=app_label model_name=model_name object_id=obj.id %}">{{ obj }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

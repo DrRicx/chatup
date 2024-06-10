@@ -1,13 +1,21 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
 </head>
 <body>
-fasfasfsaffds
+    <h1>Admin Dashboard</h1>
+    <p>Welcome to the custom admin panel!</p>
+    <ul>
+        {% for content_type in content_types %}
+            <li>
+                <a href="{% url 'model_list' app_label=content_type.app_label model_name=content_type.model %}">
+                    Manage {{ content_type.model|capfirst }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
 </body>
 </html>

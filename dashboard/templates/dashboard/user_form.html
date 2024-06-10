@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        form { max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="email"], input[type="password"], select, input[type="date"] {
+            width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;
+        }
+        button { padding: 10px 15px; background-color: #3498db; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #2980b9; }
+        .cancel-button { margin-left: 10px; background-color: #95a5a6; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+        .cancel-button:hover { background-color: #7f8c8d; }
+        .form-header { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1 class="form-header">{{ title }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <label for="user_number">User Number</label>
+            {{ form.user_number }}
+        </div>
+        <div>
+            <label for="email">Email</label>
+            {{ form.email }}
+        </div>
+        <div>
+            <label for="user_type">User Type</label>
+            {{ form.user_type }}
+        </div>
+        <div>
+            <label for="password1">Password</label>
+            {{ form.password1 }}
+        </div>
+        <div>
+            <label for="password2">Password Confirmation</label>
+            {{ form.password2 }}
+        </div>
+        <div>
+            <label for="first_name">First Name</label>
+            {{ form.first_name }}
+        </div>
+        <div>
+            <label for="last_name">Last Name</label>
+            {{ form.last_name }}
+        </div>
+        <div>
+            <label for="gender">Gender</label>
+            {{ form.gender }}
+        </div>
+        <div>
+            <label for="birthdate">Birthdate</label>
+            {{ form.birthdate }}
+        </div>
+        <button type="submit">Save</button>
+        <a href="{% url 'user_list' %}" class="cancel-button">Cancel</a>
+    </form>
+</body>
+</html>
